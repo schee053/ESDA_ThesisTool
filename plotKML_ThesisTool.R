@@ -1,18 +1,18 @@
 # Purpose        : Create kml file visualization from spacetime object;
 # Maintainer     : Daniel Scheerooren (daniel.scheerooren@wur.nl);
 # Status         : In progress
-# Last update    : 04-12-2015
-# Note           : Subscript of main_rasterESDA.R, make sure "preProcessing_rasterESDA.R" script has run, before starting this script.
+# Last update    : 06-01-2015
+# Note           : Make sure "preProcessing_rasterESDA.R" script has run, before starting this script.
 
 
 # Set directory
 mainDir <- "M:/ESDA_ThesisTool/"
 outputDir <- "Output"
 dir.create(file.path(mainDir, outputDir), showWarnings = FALSE)
-setwd(file.path(mainDir))
+setwd(file.path(mainDir,outputDir))
 getwd()
 list.files()
-getwd()
+
 # Download and open required packages
 if (!require(plotKML)) install.packages('plotKML')
 if (!require(spacetime)) install.packages('spacetime')
@@ -28,6 +28,14 @@ if (!require(RColorBrewer)) install.packages('RColorBrewer')
 # How to to make each session have its own color?
 # How to slow down time?
 
+# What arguments can be called? --> ChargeSession_KML <- function (ST_object, shape, kml.name, labels="", kmz=TRUE, legend=TRUE, balloon = TRUE){
+# labels = "" or points_names="" ? 
+# Colors for weekdays: kml_legend.bar(obj$Weekday, width=10, height=15 ,legend.pal=, legend.file = "kWh_per_min.png", factor.labels="Weekday")
+# Set in kml_layer: kml_colour  kml_altitude kml_alpha kml_size
+# add "size=" in kml_layer?
+# add kml_description()? (two-column data.frame) kml_description(data.frame, caption="Exploratory Spatial Data Analysis", asText=TRUE).
+
+
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer from CSV-file
 #-------------------------------------------------------------------------------------------
@@ -42,34 +50,52 @@ CS_NuonJune2013 <- read.csv("NuonJune2013_final.csv", header = T, sep=",")
 
 ChargeSession_KML <- function (CSV_obj, shape, file.name){
   obj.sp <- CSV_obj
-  obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%d-%m-%Y %H:%M")
-  obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%d-%m-%Y %H:%M")
+  obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
+  obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
   shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
-  name <- paste("NuonJanuary2013", "kml", sep = ".")
+  name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "Greens"), legend.file = "kWh_per_min.png")
   kml_screen(image.file = "kWh_per_min.png", position = "UL", sname = "kWh_per_min")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
-                          extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%S"), 
-                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%S"), altitude=kWh_per_min*10, colour=log1p(kWh_per_min), colour_scale=brewer.pal(9, "Greens"), shape=shape, 
-                          labels=Weekday, LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
+                          extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "Greens"), shape=shape, 
+                          labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_View(name)
 }
 
-ChargeSession_KML(CS_NuonJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "NuonJanuary2013")
-ChargeSession_KML(CS_NuonJune2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "NuonJune2013")
-ChargeSession_KML(CS_EssentJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJanuary2013")
-ChargeSession_KML(CS_EssentJune2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJune2013")
+ChargeSession_KML(CS_NuonJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "NuonJanuary2013")
+ChargeSession_KML(CS_NuonJune2013, "M:/ESDA_ThesisTool/icon54.png", "NuonJune2013")
+# ChargeSession_KML(CS_EssentJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJanuary2013")
+# ChargeSession_KML(CS_EssentJune2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJune2013")
 
-# What arguments can be called? --> ChargeSession_KML <- function (ST_object, shape, kml.name, labels="", kmz=TRUE, legend=TRUE, balloon = TRUE){
-# labels = "" or points_names="" ? 
-# Colors for weekdays: kml_legend.bar(obj$Weekday, width=10, height=15 ,legend.pal=, legend.file = "kWh_per_min.png", factor.labels="Weekday")
-# Set in kml_layer: kml_colour  kml_altitude kml_alpha kml_size
-# add "size=" in kml_layer?
-# add kml_description()? (two-column data.frame) kml_description(data.frame, caption="Exploratory Spatial Data Analysis", asText=TRUE).
+#-------------------------------------------------------------------------------------------  
+# Create KML vector layer from CSV-file, with weekday as colors
+#-------------------------------------------------------------------------------------------
+
+CS_Weekdays <- function (CSV_obj, shape, file.name){
+  obj.sp <- CSV_obj
+  obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
+  obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
+  coordinates(obj.sp) <- ~ Longitude + Latitude
+  proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
+  shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
+  name <- paste(name, "kml", sep = ".")
+  kml_open(name)
+  kml_legend.bar(obj.sp$Weekday,legend.pal=brewer.pal(7, "Set1"), legend.file = "Weekday.png")
+  kml_screen(image.file = "Weekday", position = "UL", sname = "Weekday")
+  kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
+                          extrude=TRUE, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=Weekday, colour_scale=brewer.pal(7, "Set1"), shape=shape, 
+                          labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
+  kml_close(name)
+  kml_View(name)
+}
+
+CS_Weekdays(CS_NuonJanuary2013, "http://maps.google.com/mapfiles/kml/pal2/icon18.png", "NuonJanWeekday2013")
 
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer of Charge Point locations in 2015
@@ -126,6 +152,7 @@ ST_DF <- function (obj){
   return (CP_obj.st)
 } 
 
+plotKML(ST_NuonJanuary2013)
 ST_NuonJanuary2013 <- ST_DF(CS_NuonJanuary2013)
 ST_NuonJune2013 <- ST_DF(CS_NuonJune2013)
 #CS_STEssentJanuary2013 <- ST_DF(CS_EssentJanuary2013)
