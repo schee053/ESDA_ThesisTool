@@ -20,7 +20,6 @@ if (!require(plyr)) install.packages('plyr')
 if (!require(rgdal)) install.packages('rgdal')
 if (!require(sp)) install.packages('sp')
 if (!require(RColorBrewer)) install.packages('RColorBrewer')
-if (!require(RSAGA)) install.packages('RSAGA')
 
 #-------------------------------------------------------------------------------------------  
 # Questions about plotKML:
@@ -30,35 +29,16 @@ if (!require(RSAGA)) install.packages('RSAGA')
 # How to slow down time?
 
 #-------------------------------------------------------------------------------------------  
-# Create STIDF (space-time irregular data frame) object from CSV-file
+# Create KML vector layer from CSV-file
 #-------------------------------------------------------------------------------------------
+# For shapes: https://sites.google.com/site/gmapsdevelopment/
+# FOr colors: http://vis.supstat.com/2013/04/plotting-symbols-and-color-palettes/
+# Extrude specifies whether to connect the point to the ground with a line
 
 CS_NuonJanuary2013 <- read.csv("NuonJanuary2013_final.csv", header = T, sep=",")
 CS_NuonJune2013 <- read.csv("NuonJune2013_final.csv", header = T, sep=",")
 #CS_EssentJanuary2013 <- read.csv("EssentJanuary2013_final.csv", header = T, sep=",")
 #CS_EssentJune2013 <- read.csv("EssentJune2013_final.csv", header = T, sep=",")
-
-ST_DF <- function (obj){
-  obj$Address <- paste(obj$Street, obj$HouseNumber, sep="_")
-  CP_obj <- SpatialPoints(obj[,c("Longitude","Latitude")])
-  proj4string(CP_obj) <- CRS("+proj=longlat +datum=WGS84")
-  obj$Begin_CS <- as.POSIXct(paste(obj$Begin_CS), format="%Y-%m-%d %H:%M:%S", tz = "GMT")
-  obj$End_CS <- as.POSIXct(paste(obj$End_CS), format="%Y-%m-%d %H:%M:%S", tz = "GMT")
-  CP_obj.st <- STIDF(CP_obj, time=obj$Begin_CS, data=obj[,c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], endTime=obj$End_CS)
-  return (CP_obj.st)
-} 
-
-ST_NuonJanuary2013 <- ST_DF(CS_NuonJanuary2013)
-ST_NuonJune2013 <- ST_DF(CS_NuonJune2013)
-#CS_STEssentJanuary2013 <- ST_DF(CS_EssentJanuary2013)
-#CS_STEssentJune2013 <- ST_DF(CS_EssentJune2013)
-
-#-------------------------------------------------------------------------------------------  
-# Create KML vector layer from STIDF object
-#-------------------------------------------------------------------------------------------
-# For shapes: https://sites.google.com/site/gmapsdevelopment/
-# FOr colors: http://vis.supstat.com/2013/04/plotting-symbols-and-color-palettes/
-# Extrude specifies whether to connect the point to the ground with a line
 
 ChargeSession_KML <- function (CSV_obj, shape, file.name){
   obj.sp <- CSV_obj
@@ -79,10 +59,10 @@ ChargeSession_KML <- function (CSV_obj, shape, file.name){
   kml_View(name)
 }
 
-ChargeSession_KML(ST_NuonJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "NuonJanuary2013")
-
-
-
+ChargeSession_KML(CS_NuonJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "NuonJanuary2013")
+ChargeSession_KML(CS_NuonJune2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "NuonJune2013")
+ChargeSession_KML(CS_EssentJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJanuary2013")
+ChargeSession_KML(CS_EssentJune2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJune2013")
 
 # What arguments can be called? --> ChargeSession_KML <- function (ST_object, shape, kml.name, labels="", kmz=TRUE, legend=TRUE, balloon = TRUE){
 # labels = "" or points_names="" ? 
@@ -127,3 +107,28 @@ XYunique <- rbind(NuonXYunique, EssentXYunique)
 
 Stations2013 <- join(XYunique, Stations, by = LonLat , type = "left", match = "first")
 
+#-------------------------------------------------------------------------------------------  
+# Create STIDF (space-time irregular data frame) object from CSV-file
+#-------------------------------------------------------------------------------------------
+
+CS_NuonJanuary2013 <- read.csv("NuonJanuary2013_final.csv", header = T, sep=",")
+CS_NuonJune2013 <- read.csv("NuonJune2013_final.csv", header = T, sep=",")
+#CS_EssentJanuary2013 <- read.csv("EssentJanuary2013_final.csv", header = T, sep=",")
+#CS_EssentJune2013 <- read.csv("EssentJune2013_final.csv", header = T, sep=",")
+
+ST_DF <- function (obj){
+  obj$Address <- paste(obj$Street, obj$HouseNumber, sep="_")
+  CP_obj <- SpatialPoints(obj[,c("Longitude","Latitude")])
+  proj4string(CP_obj) <- CRS("+proj=longlat +datum=WGS84")
+  obj$Begin_CS <- as.POSIXct(paste(obj$Begin_CS), format="%Y-%m-%d %H:%M:%S", tz = "GMT")
+  obj$End_CS <- as.POSIXct(paste(obj$End_CS), format="%Y-%m-%d %H:%M:%S", tz = "GMT")
+  CP_obj.st <- STIDF(CP_obj, time=obj$Begin_CS, data=obj[,c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], endTime=obj$End_CS)
+  return (CP_obj.st)
+} 
+
+ST_NuonJanuary2013 <- ST_DF(CS_NuonJanuary2013)
+ST_NuonJune2013 <- ST_DF(CS_NuonJune2013)
+#CS_STEssentJanuary2013 <- ST_DF(CS_EssentJanuary2013)
+#CS_STEssentJune2013 <- ST_DF(CS_EssentJune2013)
+
+# You can now use plotKML or KML function to plot STIDF object
