@@ -138,7 +138,7 @@ prep_NUON <- function (csv.file, obj.name){
 } 
 
 # Run function
-Nuon_Januari2013 <- prep_NUON("NuonSplitJan2013.csv", "Nuon_Januari2013")
+Nuon_January2013 <- prep_NUON("NuonSplitJan2013.csv", "Nuon_January2013")
 Nuon_June2013 <- prep_NUON("NuonSplitJune2013.csv", "Nuon_June2013") 
 
 #-------------------------------------------------------------------------------------------  

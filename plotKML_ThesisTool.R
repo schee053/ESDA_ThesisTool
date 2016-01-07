@@ -40,11 +40,12 @@ if (!require(RColorBrewer)) install.packages('RColorBrewer')
 # Create KML vector layer from CSV-file
 #-------------------------------------------------------------------------------------------
 # For shapes: https://sites.google.com/site/gmapsdevelopment/
-# FOr colors: http://vis.supstat.com/2013/04/plotting-symbols-and-color-palettes/
+# For colors: http://vis.supstat.com/2013/04/plotting-symbols-and-color-palettes/ / http://www.flinklabs.com/labs/colors/
 # Extrude specifies whether to connect the point to the ground with a line
 
-CS_NuonJanuary2013 <- read.csv("NuonJanuary2013_final.csv", header = T, sep=",")
-CS_NuonJune2013 <- read.csv("NuonJune2013_final.csv", header = T, sep=",")
+CS_NuonJanuary2013 <- read.csv("Nuon_January2013.csv", header = T, sep=",")
+CS_NuonJanuary2013 <- Nuon_January2013
+CS_NuonJune2013 <- read.csv("Nuon_June2013.csv", header = T, sep=",")
 #CS_EssentJanuary2013 <- read.csv("EssentJanuary2013_final.csv", header = T, sep=",")
 #CS_EssentJune2013 <- read.csv("EssentJune2013_final.csv", header = T, sep=",")
 
