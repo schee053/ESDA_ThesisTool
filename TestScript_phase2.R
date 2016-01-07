@@ -6,6 +6,11 @@
 # ChargeSession function: doesn't make a kmz file (no legend!) + icon doesn't work.
 test.plot <- Nuon_June2013[1:20,]
 
+### CHECK THIS: http://stackoverflow.com/questions/14313115/google-kmllayer-not-displaying-custom-marker 
+### CHECK THIS LINK (for displaying you file in Google Maps): https://www.google.com/maps/d/
+# Zoeken in data --> alleen hoogte kan niet worden weergeven. 
+# Misschien in html de kleur aanpassen?
+
 ChargeSession_KML <- function (CSV_obj, shape, file.name){
   obj.sp <- CSV_obj
   obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
