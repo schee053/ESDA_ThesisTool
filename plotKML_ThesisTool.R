@@ -6,7 +6,7 @@
 
 
 # Set directory
-mainDir <- "M:/ESDA_ThesisTool/"
+mainDir <- "M:/My Documents/ESDA_ThesisTool/"
 outputDir <- "Output"
 dir.create(file.path(mainDir, outputDir), showWarnings = FALSE)
 setwd(file.path(mainDir,outputDir))
@@ -55,7 +55,7 @@ ChargeSession_KML <- function (CSV_obj, shape, file.name){
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
   shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
-  name <- paste(name, "kml", sep = ".")
+  name <- paste(file.name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "Greens"), legend.file = "kWh_per_min.png")
   kml_screen(image.file = "kWh_per_min.png", position = "UL", sname = "kWh_per_min")
@@ -83,7 +83,7 @@ CS_Weekdays <- function (CSV_obj, shape, file.name){
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
   shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
-  name <- paste(name, "kml", sep = ".")
+  name <- paste(file.name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$Weekday,legend.pal=brewer.pal(7, "Set1"), legend.file = "Weekday.png")
   kml_screen(image.file = "Weekday", position = "UL", sname = "Weekday")
