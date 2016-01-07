@@ -1,18 +1,20 @@
 # Purpose        : Preprocess Charge point and Charge session data for use for ESDA tool;
 # Maintainer     : Daniel Scheerooren (daniel.scheerooren@wur.nl);
-# Status         : In progress
+# Status         : Close to completion
 # Last update    : 06-01-2015
 # Note           : 
 
 
 # Set directory
-mainDir <- "M:/ESDA_ThesisTool/"
+mainDir <- "M:/My Documents/ESDA_ThesisTool/"
 dataDir <- "Datasets"
 outputDir <- "Output"
 dir.create(file.path(mainDir,dataDir), showWarnings = FALSE)
 setwd(file.path(mainDir, dataDir))
 dir.create(file.path(mainDir, outputDir), showWarnings = FALSE)
 
+
+getwd()
 # Download and open required packages
 if (!require(plyr)) install.packages('plyr')
 if (!require(RCurl)) install.packages('RCurl')
@@ -105,10 +107,10 @@ prep_ESSENT <- function(csv.file, obj.name){
   # Read CSV file
   EssentRaw <- read.csv(csv.file,  header = T, sep=",")
   # Set date and time 
-  EssentRaw$Begin_DA <- as.character(EssentRaw$Begin_LOAD_DATE)
-  EssentRaw$Begin_TI <- as.character(EssentRaw$Begin_LOAD_TIME)
-  EssentRaw$End_DA <- as.character(EssentRaw$End_LOAD_DATE)
-  EssentRaw$End_TI <- as.character(EssentRaw$End_LOAD_TIME)
+  EssentRaw$Begin_DA <- as.character(EssentRaw$BEGIN_LOAD_DATE)
+  EssentRaw$Begin_TI <- as.character(EssentRaw$BEGIN_LOAD_TIME)
+  EssentRaw$End_DA <- as.character(EssentRaw$END_LOAD_DATE)
+  EssentRaw$End_TI <- as.character(EssentRaw$END_LOAD_TIME)
   EssentRaw$Begin_CS <- as.POSIXct(paste(EssentRaw$Begin_DA, EssentRaw$Begin_TI), format="%d.%m.%Y %H:%M:%S", tz = "GMT")
   EssentRaw$End_CS <- as.POSIXct(paste(EssentRaw$End_DA, EssentRaw$End_TI), format="%d.%m.%Y %H:%M:%S",  tz = "GMT")
   
