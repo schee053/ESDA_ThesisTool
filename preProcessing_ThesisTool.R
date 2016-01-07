@@ -1,6 +1,6 @@
 # Purpose        : Preprocess Charge point and Charge session data for use for ESDA tool;
 # Maintainer     : Daniel Scheerooren (daniel.scheerooren@wur.nl);
-# Status         : Completed
+# Status         : Almost completed
 # Last update    : 07-01-2015
 # Note           : 
 
@@ -67,7 +67,7 @@ prep_NUON <- function (csv.file, obj.name){
   # NuonRaw$End_CS <- as.POSIXct(paste(NuonRaw$Eind), format="%d-%m-%Y %H:%M",  tz = "GMT")
   
   # Add weekdays column
-  EssentRaw.Sessions$Weekday <- weekdays(as.Date(EssentRaw.Sessions$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
+  NuonRaw$Weekday <- weekdays(as.Date(NuonRaw$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
   
   # Rename columns: 
   names(NuonRaw)[names(NuonRaw)=="Straat"] <- "Street"
@@ -125,14 +125,11 @@ prep_NUON <- function (csv.file, obj.name){
   
   # Remove NA values in Latitude column 
   NuonRaw.Sessions <- NuonRaw.Sessions[!is.na(NuonRaw.Sessions$Latitude),] # Many failed matches (2778!) 
-  
-  # Add weekdays column
-  NuonRaw.Sessions$Weekday <- weekdays(as.Date(NuonRaw.Sessions$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
   #Maybe because of case sensitive join opperation?
   #View(NuonRaw)
   
   # Remove unnecessary columns
-  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "kWh_per_minute", "ConnectionTime", "kWh_total", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
+  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "kWh_per_min", "ConnectionTime", "kWh_total", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
   NuonClean <- NuonRaw.Sessions[keep]
   
   # Write to csv and return object
@@ -234,7 +231,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentRaw.Sessions <- EssentRaw.Sessions[!is.na(EssentRaw.Sessions$Latitude),] 
   
   # Remove unnecessary columns
-  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "kWh_per_minute", "ConnectionTime", "kWh_total", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
+  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "kWh_per_min", "ConnectionTime", "kWh_total", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
   EssentClean <- EssentRaw.Sessions[keep]
   
   # Write to csv and return object
