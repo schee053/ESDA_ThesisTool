@@ -162,12 +162,9 @@ test.week <- AdamJune2013[1:20,]
 AdamJune2013$WeekNr <- strftime(AdamJune2013$Begin_CS, format = "%W")
 AdamJune2013$Year <- strftime(AdamJune2013$Begin_CS, format = "%Y")
 AdamJune2013$weekID <- paste(AdamJune2013$WeekNr, AdamJune2013$Year, sep = ".")
-
 uniq <- unique(unlist(AdamJune2013$weekID))
-
 for (i in 1:length(uniq)) {
   assign(paste("Week",uniq[i],sep="."), subset(AdamJune2013, weekID == uniq[i]))
-  #your desired function
 }
 
 SubWeek.Adam <- function(x){}

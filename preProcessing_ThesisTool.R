@@ -112,7 +112,7 @@ prep_NUON <- function (csv.file, obj.name){
   NuonRaw$timeSec <- toSeconds(NuonRaw$ConnectionTime)
   
   # Remove sessions of 0 seconds (failed sessions)
-  NuonRaw <- subset(NuonRaw, timeSec != 0)
+  NuonRaw <- subset(NuonRaw, timeSec < 60)
   
   # Calculate kWh per minute
   NuonRaw$kWh_per_min <- ((NuonRaw$kWh_total/NuonRaw$timeSec)*60) 
@@ -214,7 +214,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentRaw$timeSec <- toSeconds(EssentRaw$ConnectionTime)
   
   # Remove sessions of 0 seconds (failed sessions)
-  EssentRaw <- subset(EssentRaw, timeSec != 0)
+  EssentRaw <- subset(EssentRaw, timeSec < 60)
   
   # Calculate kWh per minute
   EssentRaw$kWh_per_min <- ((EssentRaw$kWh_total/EssentRaw$timeSec)*60) 
@@ -262,11 +262,27 @@ splitWeek <- function (obj){
   obj$weekID <- paste(obj$WeekNr, obj$Year, sep = ".")
   uniq <- unique(unlist(obj$weekID))
   output2 <- for (i in 1:length(uniq)) {
-              output1 <- assign(paste("Week",uniq[i],sep="."), subset(obj, weekID == uniq[i]))
-             return (output1)
-  }
+    assign(paste("Week",uniq[i],sep="."), subset(obj, weekID == uniq[i]))
+    }
   return (output2)
 }
 
 splitWeek(AdamJanuary2013)
 splitWeek(AdamJune2013)
+
+# Cheating, because function doens't work yet
+AdamJune2013$WeekNr <- strftime(AdamJune2013$Begin_CS, format = "%W")
+AdamJune2013$Year <- strftime(AdamJune2013$Begin_CS, format = "%Y")
+AdamJune2013$weekID <- paste(AdamJune2013$WeekNr, AdamJune2013$Year, sep = ".")
+uniq <- unique(unlist(AdamJune2013$weekID))
+for (i in 1:length(uniq)) {
+  assign(paste("Week",uniq[i],sep="."), subset(AdamJune2013, weekID == uniq[i]))
+}
+
+AdamJanuary2013$WeekNr <- strftime(AdamJanuary2013$Begin_CS, format = "%W")
+AdamJanuary2013$Year <- strftime(AdamJanuary2013$Begin_CS, format = "%Y")
+AdamJanuary2013$weekID <- paste(AdamJanuary2013$WeekNr, AdamJanuary2013$Year, sep = ".")
+uniq <- unique(unlist(AdamJanuary2013$weekID))
+for (i in 1:length(uniq)) {
+  assign(paste("Week",uniq[i],sep="."), subset(AdamJanuary2013, weekID == uniq[i]))
+}

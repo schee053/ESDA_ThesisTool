@@ -15,18 +15,18 @@ ChargeSession_KML <- function (CSV_obj, shape, file.name){
   shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
   name <- paste(file.name, "kml", sep = ".")
   kml_open(name)
-  kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "Greens"), legend.file = "kWh_per_min.png")
+  kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "kWh_per_min.png")
   kml_screen(image.file = "kWh_per_min.png", position = "UL", sname = "kWh_per_min")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
                           extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
-                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "Greens"), shape=shape, 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_View(name)
 }
 
 ChargeSession_KML(test.plot, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "testjun062013")
-
+ChargeSession_KML(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "Week.00.2013")
 
 
 
