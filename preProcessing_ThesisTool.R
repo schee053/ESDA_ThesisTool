@@ -12,7 +12,7 @@ outputDir <- "Output"
 dir.create(file.path(mainDir,dataDir), showWarnings = FALSE)
 setwd(file.path(mainDir, dataDir))
 dir.create(file.path(mainDir, outputDir), showWarnings = FALSE)
-
+Sys.setlocale("LC_ALL","English")
 
 getwd()
 # Download and open required packages
@@ -50,10 +50,10 @@ list.files()
 NuonSplit <- read.csv("rapportage_verbruiksdata 201301 + 201306.csv", header = T, sep=",")
 NuonSplit$Begin_CS <- as.POSIXct(paste(NuonSplit$Start), format="%d-%m-%Y %H:%M", tz = "GMT")
 NuonSplit$End_CS <- as.POSIXct(paste(NuonSplit$Eind), format="%d-%m-%Y %H:%M",  tz = "GMT")
-NuonJanuari2013 <- subset(NuonSplit, Begin_CS <= as.POSIXct("2013-01-31 00:00"))
-NuonJune2013 <- subset(NuonSplit, Begin_CS > as.POSIXct("2013-01-31 00:00"))
-write.csv(NuonJanuari2013, file= paste("NuonJanuari2013", "csv", sep = "."))
-write.csv(NuonJune2013, file= paste("NuonJune2013", "csv", sep = "."))
+NuonSplitJan2013 <- subset(NuonSplit, Begin_CS < as.POSIXct("2013-06-01 00:00"))
+NuonSplitJune2013 <- subset(NuonSplit, Begin_CS >= as.POSIXct("2013-06-01 00:00"))
+write.csv(NuonSplitJan2013, file= paste("NuonSplitJan2013", "csv", sep = "."))
+write.csv(NuonSplitJune2013, file= paste("NuonSplitJune2013", "csv", sep = "."))
 
 prep_NUON <- function (csv.file, obj.name){
   # Read csv files and create R-objects
@@ -94,8 +94,8 @@ prep_NUON <- function (csv.file, obj.name){
 } 
 
 # Run function
-Nuon_Januari2013 <- prep_NUON("NuonJanuari2013.csv", "Nuon_Januari2013")
-Nuon_June2013 <- prep_NUON("NuonJune2013.csv", "Nuon_June2013") 
+Nuon_Januari2013 <- prep_NUON("NuonSplitJan2013.csv", "Nuon_Januari2013")
+Nuon_June2013 <- prep_NUON("NuonSplitJune2013.csv", "Nuon_June2013") 
 
 #-------------------------------------------------------------------------------------------  
 # pre-process Essent charge session dataset
@@ -115,7 +115,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentRaw$End_CS <- as.POSIXct(paste(EssentRaw$End_DA, EssentRaw$End_TI), format="%d.%m.%Y %H:%M:%S",  tz = "GMT")
   
   # Remove sessions from December 2012
-  EssentRaw <- subset(EssentRaw, Begin_CS > as.POSIXct("2013-01-01 00:00"))
+  EssentRaw <- subset(EssentRaw, Begin_CS >= as.POSIXct("2013-01-01 00:00"))
   
   # Convert energy from factor to numeric
   EssentRaw$ENERGIE <- as.character(EssentRaw$ENERGIE)
@@ -140,7 +140,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentRaw.Stations <- join(EssentRaw, Stations, by="Address", type = "left", match = "all")
   
   # Remove duplicates in joined file 
-  EssentRaw.Stations$REMOVE_ID <- paste(EssentRaw.Stations$Session_ID, EssentRaw.Stations$METER_READ_Begin, EssentRaw.Stations$Address)
+  EssentRaw.Stations$REMOVE_ID <- paste(EssentRaw.Stations$Session_ID, EssentRaw.Stations$METER_READ_BEGIN, EssentRaw.Stations$Address)
   EssentRaw.Sessions <- EssentRaw.Stations[ !duplicated(EssentRaw.Stations["REMOVE_ID"]),]
   # Not the right combination of joins! --> find out where the duplicates come from! 
   
