@@ -1,7 +1,7 @@
 # Purpose        : Preprocess Charge point and Charge session data for use for ESDA tool;
 # Maintainer     : Daniel Scheerooren (daniel.scheerooren@wur.nl);
-# Status         : Close to completion
-# Last update    : 06-01-2015
+# Status         : Completed
+# Last update    : 07-01-2015
 # Note           : 
 
 
@@ -58,36 +58,83 @@ write.csv(NuonSplitJune2013, file= paste("NuonSplitJune2013", "csv", sep = "."))
 prep_NUON <- function (csv.file, obj.name){
   # Read csv files and create R-objects
   NuonRaw <- read.csv(csv.file,  header = T, sep=",")
+  
   # Remove double sessions  
   NuonRaw <- NuonRaw[ !duplicated(NuonRaw["Sessie"]),] # Why are there double sessions in the first place?
+  
   # Set date and time 
   # NuonRaw$Begin_CS <- as.POSIXct(paste(NuonRaw$Start), format="%d-%m-%Y %H:%M", tz = "GMT")
   # NuonRaw$End_CS <- as.POSIXct(paste(NuonRaw$Eind), format="%d-%m-%Y %H:%M",  tz = "GMT")
+  
+  # Add weekdays column
+  EssentRaw.Sessions$Weekday <- weekdays(as.Date(EssentRaw.Sessions$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
+  
   # Rename columns: 
   names(NuonRaw)[names(NuonRaw)=="Straat"] <- "Street"
   names(NuonRaw)[names(NuonRaw)=="Huisnummer"] <- "HouseNumber"
   names(NuonRaw)[names(NuonRaw)=="Postcode"] <- "PostalCode"
   names(NuonRaw)[names(NuonRaw)=="Laadtijd"] <- "ConnectionTime"
   names(NuonRaw)[names(NuonRaw)=="Sessie"] <- "Session_ID"
+  names(NuonRaw)[names(NuonRaw)=="kWh"] <- "kWh_total"
+  
   # Remove white space from PostalCode
   NuonRaw$PostalCode <- gsub(" ", "", NuonRaw$PostalCode, fixed = T)
+  
   # Remove string variables in connection time
   NuonRaw$ConnectionTime <- gsub("h", ":", NuonRaw$ConnectionTime, fixed = T)
   NuonRaw$ConnectionTime <- gsub("min", "", NuonRaw$ConnectionTime, fixed = T)
+ 
+  # Add ConnectionTime in seconds
+  NuonRaw$ConnectionTime <- paste(NuonRaw$ConnectionTime, "00", sep = ":")
+  NuonRaw$ConnectionTime <- as.character.Date(NuonRaw$ConnectionTime, format= "%H:%M:%S", tz="GMT")
+  
+  toSeconds <- function(x){
+    if (!is.character(x)) stop("x must be a character string of the form H:M:S")
+    if (length(x)<=0)return(x)
+    
+    unlist(
+      lapply(x,
+             function(i){
+               i <- as.numeric(strsplit(i,':',fixed=TRUE)[[1]])
+               if (length(i) == 3) 
+                 i[1]*3600 + i[2]*60 + i[3]
+               else if (length(i) == 2) 
+                 i[1]*60 + i[2]
+               else if (length(i) == 1) 
+                 i[1]
+             }  
+      )  
+    )  
+  } 
+  
+  NuonRaw$timeSec <- toSeconds(NuonRaw$ConnectionTime)
+  
+  # Remove sessions of 0 seconds (failed sessions)
+  NuonRaw <- subset(NuonRaw, timeSec != 0)
+  
+  # Calculate kWh per minute
+  NuonRaw$kWh_per_min <- ((NuonRaw$kWh_total/NuonRaw$timeSec)*60) 
+  NuonRaw$kWh_per_min <- round(NuonRaw$kWh_per_min,digits=3)
+  
   # Join Charge data with xy-coordinates
   NuonRaw$Address <- paste(NuonRaw$Street, NuonRaw$HouseNumber, NuonRaw$PostalCode, sep=" ")
   NuonRaw.Stations <- join(NuonRaw, Stations, by="Address", type = "left")
+  
   # Remove duplicates in joined file 
   NuonRaw.Sessions <- NuonRaw.Stations[ !duplicated(NuonRaw.Stations["Session_ID"]),]
+  
   # Remove NA values in Latitude column 
   NuonRaw.Sessions <- NuonRaw.Sessions[!is.na(NuonRaw.Sessions$Latitude),] # Many failed matches (2778!) 
+  
   # Add weekdays column
   NuonRaw.Sessions$Weekday <- weekdays(as.Date(NuonRaw.Sessions$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
   #Maybe because of case sensitive join opperation?
   #View(NuonRaw)
+  
   # Remove unnecessary columns
-  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "ConnectionTime", "kWh", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
+  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "kWh_per_minute", "ConnectionTime", "kWh_total", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
   NuonClean <- NuonRaw.Sessions[keep]
+  
   # Write to csv and return object
   write.csv(NuonClean, file= paste(obj.name, "csv", sep = "."))
   return(NuonClean)
@@ -106,6 +153,11 @@ list.files()
 prep_ESSENT <- function(csv.file, obj.name){
   # Read CSV file
   EssentRaw <- read.csv(csv.file,  header = T, sep=",")
+  
+  # Extract the sum of sessions
+  EssentRaw$IS_SUM_RECORD <- as.character(EssentRaw$IS_SUM_RECORD)
+  EssentRaw <- subset(EssentRaw, IS_SUM_RECORD == "X")
+  
   # Set date and time 
   EssentRaw$Begin_DA <- as.character(EssentRaw$BEGIN_LOAD_DATE)
   EssentRaw$Begin_TI <- as.character(EssentRaw$BEGIN_LOAD_TIME)
@@ -116,6 +168,9 @@ prep_ESSENT <- function(csv.file, obj.name){
   
   # Remove sessions from December 2012
   EssentRaw <- subset(EssentRaw, Begin_CS >= as.POSIXct("2013-01-01 00:00"))
+  
+  # Add weekdays column
+  EssentRaw$Weekday <- weekdays(as.Date(EssentRaw$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
   
   # Convert energy from factor to numeric
   EssentRaw$ENERGIE <- as.character(EssentRaw$ENERGIE)
@@ -128,12 +183,43 @@ prep_ESSENT <- function(csv.file, obj.name){
   names(EssentRaw)[names(EssentRaw)=="HOUSE_NUM1"] <- "HouseNumber"
   names(EssentRaw)[names(EssentRaw)=="POST_CODE1"] <- "PostalCode"
   names(EssentRaw)[names(EssentRaw)=="CHARGE_DURATION"] <- "ConnectionTime"
-  names(EssentRaw)[names(EssentRaw)=="ENERGIE"] <- "kWh"
+  names(EssentRaw)[names(EssentRaw)=="ENERGIE"] <- "kWh_total"
   names(EssentRaw)[names(EssentRaw)=="UNIQUE_ID"] <- "Session_ID"
   
   # Remove white space from PostalCode
   EssentRaw$PostalCode <- as.character(EssentRaw$PostalCode)
   EssentRaw$PostalCode <- gsub(" ", "", EssentRaw$PostalCode, fixed = T)
+  
+  # Add ConnectionTime in seconds
+  EssentRaw$ConnectionTime <- as.character.Date(EssentRaw$ConnectionTime, format= "%H:%M:%S", tz="GMT")
+  
+  toSeconds <- function(x){
+    if (!is.character(x)) stop("x must be a character string of the form H:M:S")
+    if (length(x)<=0)return(x)
+    
+    unlist(
+      lapply(x,
+             function(i){
+               i <- as.numeric(strsplit(i,':',fixed=TRUE)[[1]])
+               if (length(i) == 3) 
+                 i[1]*3600 + i[2]*60 + i[3]
+               else if (length(i) == 2) 
+                 i[1]*60 + i[2]
+               else if (length(i) == 1) 
+                 i[1]
+             }  
+      )  
+    )  
+  } 
+  
+  EssentRaw$timeSec <- toSeconds(EssentRaw$ConnectionTime)
+  
+  # Remove sessions of 0 seconds (failed sessions)
+  EssentRaw <- subset(EssentRaw, timeSec != 0)
+  
+  # Calculate kWh per minute
+  EssentRaw$kWh_per_min <- ((EssentRaw$kWh_total/EssentRaw$timeSec)*60) 
+  EssentRaw$kWh_per_min <- round(EssentRaw$kWh_per_min,digits=3)
   
   # Join Charge data with xy-coordinates
   EssentRaw$Address <- paste(EssentRaw$Street, EssentRaw$HouseNumber, EssentRaw$PostalCode, sep=" ")
@@ -147,11 +233,8 @@ prep_ESSENT <- function(csv.file, obj.name){
   # Remove NA values in Latitude column 
   EssentRaw.Sessions <- EssentRaw.Sessions[!is.na(EssentRaw.Sessions$Latitude),] 
   
-  # Add weekdays column
-  EssentRaw.Sessions$Weekday <- weekdays(as.Date(EssentRaw.Sessions$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
-  
   # Remove unnecessary columns
-  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "ConnectionTime", "kWh", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
+  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "kWh_per_minute", "ConnectionTime", "kWh_total", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
   EssentClean <- EssentRaw.Sessions[keep]
   
   # Write to csv and return object
@@ -160,5 +243,5 @@ prep_ESSENT <- function(csv.file, obj.name){
 }
 
 # Run function
-Essent_Januari2013 <- prep_ESSENT("exp_201301-62014.csv", "Essent_Januari2013")
+Essent_January2013 <- prep_ESSENT("exp_201301-62014.csv", "Essent_January2013")
 Essent_June2013 <- prep_ESSENT("exp_201306-62014.csv", "Essent_June2013")
