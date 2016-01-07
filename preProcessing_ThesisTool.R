@@ -250,3 +250,23 @@ Essent_June2013 <- prep_ESSENT("exp_201306-62014.csv", "Essent_June2013")
 #-------------------------------------------------------------------------------------------
 AdamJanuary2013 <- rbind(Nuon_January2013, Essent_January2013)
 AdamJune2013 <- rbind(Nuon_June2013, Essent_June2013)
+
+
+#-------------------------------------------------------------------------------------------  
+# Subset data per week
+#-------------------------------------------------------------------------------------------
+# Create week identifier based on week of the year (you want subset per week)
+splitWeek <- function (obj){
+  obj$WeekNr <- strftime(obj$Begin_CS, format = "%W")
+  obj$Year <- strftime(obj$Begin_CS, format = "%Y")
+  obj$weekID <- paste(obj$WeekNr, obj$Year, sep = ".")
+  uniq <- unique(unlist(obj$weekID))
+  output2 <- for (i in 1:length(uniq)) {
+              output1 <- assign(paste("Week",uniq[i],sep="."), subset(obj, weekID == uniq[i]))
+             return (output1)
+  }
+  return (output2)
+}
+
+splitWeek(AdamJanuary2013)
+splitWeek(AdamJune2013)
