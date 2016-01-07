@@ -45,7 +45,7 @@ Stations <- get.stations("https://api.essent.nl/generic/downloadChargingStations
 
 # Mannualy put charge data into workspace directory and save as CSV-file!!
 list.files()
-
+str(NuonSplitJan2013)
 # Split (subset) Nuon files
 NuonSplit <- read.csv("rapportage_verbruiksdata 201301 + 201306.csv", header = T, sep=",")
 NuonSplit$Begin_CS <- as.POSIXct(paste(NuonSplit$Start), format="%d-%m-%Y %H:%M", tz = "GMT")
@@ -57,7 +57,9 @@ write.csv(NuonSplitJune2013, file= paste("NuonSplitJune2013", "csv", sep = "."))
 
 prep_NUON <- function (csv.file, obj.name){
   # Read csv files and create R-objects
-  NuonRaw <- read.csv(csv.file,  header = T, sep=",")
+  NuonRaw <- read.csv(csv.file, header = T, sep=",")
+  NuonRaw$Begin_CS <- as.POSIXct(paste(NuonRaw$Begin_CS), format="%Y-%m-%d %H:%M:%S", tz = "GMT")
+  NuonRaw$End_CS <- as.POSIXct(paste(NuonRaw$End_CS), format="%Y-%m-%d %H:%M:%S",  tz = "GMT")
   
   # Remove double sessions  
   NuonRaw <- NuonRaw[ !duplicated(NuonRaw["Sessie"]),] # Why are there double sessions in the first place?
@@ -242,3 +244,9 @@ prep_ESSENT <- function(csv.file, obj.name){
 # Run function
 Essent_January2013 <- prep_ESSENT("exp_201301-62014.csv", "Essent_January2013")
 Essent_June2013 <- prep_ESSENT("exp_201306-62014.csv", "Essent_June2013")
+
+#-------------------------------------------------------------------------------------------  
+# Merge providers per month
+#-------------------------------------------------------------------------------------------
+AdamJanuary2013 <- rbind(Nuon_January2013, Essent_January2013)
+AdamJune2013 <- rbind(Nuon_June2013, Essent_June2013)
