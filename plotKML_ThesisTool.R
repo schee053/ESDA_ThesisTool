@@ -26,7 +26,12 @@ if (!require(RColorBrewer)) install.packages('RColorBrewer')
 #-------------------------------------------------------------------------------------------
 
 # Why doens't my png work?
+# Is there a way to make a bubble map in plotKML?
 # How to slow down time?
+
+
+
+
 
 # What arguments can be called? --> ChargeSession_KML <- function (ST_object, shape, kml.name, labels="", kmz=TRUE, legend=TRUE, balloon = TRUE){
 # labels = "" or points_names="" ? 
@@ -59,6 +64,8 @@ ChargeSession_KML <- function (CSV_obj, shape, name){
 }
 
 ChargeSession_KML(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "Week.00.Color")
+ChargeSession_KML(Week.00.2013, "M:/My Documents/ESDA_ThesisTool/icon54.png", "Week.00.Color")
+
 
 for (i in 1:length(WeekList)) {
   ChargeSession_KML(i, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", WeekList[i])
