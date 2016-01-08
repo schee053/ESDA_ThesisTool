@@ -31,7 +31,7 @@ ChargeSession_KML <- function (CSV_obj, shape, file.name){
 }
 
 ChargeSession_KML(test.plot, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "testjun062013")
-ChargeSession_KML(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "Week.00.2013")
+ChargeSession_KML(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "Week.00.2013")
 
 
 

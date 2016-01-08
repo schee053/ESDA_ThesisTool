@@ -298,18 +298,18 @@ JuneWeekList <- splitWeek(AdamJune2013)
 length(JuneWeekList)
 
 # #To create each as seperate objects (not as a list):
-# AdamJune2013$WeekNr <- strftime(AdamJune2013$Begin_CS, format = "%W")
-# AdamJune2013$Year <- strftime(AdamJune2013$Begin_CS, format = "%Y")
-# AdamJune2013$weekID <- paste(AdamJune2013$WeekNr, AdamJune2013$Year, sep = ".")
-# uniq <- unique(unlist(AdamJune2013$weekID))
-# for (i in 1:length(uniq)) {
-#   assign(paste("Week",uniq[i],sep="."), subset(AdamJune2013, weekID == uniq[i]))
-# }
-# 
-# AdamJanuary2013$WeekNr <- strftime(AdamJanuary2013$Begin_CS, format = "%W")
-# AdamJanuary2013$Year <- strftime(AdamJanuary2013$Begin_CS, format = "%Y")
-# AdamJanuary2013$weekID <- paste(AdamJanuary2013$WeekNr, AdamJanuary2013$Year, sep = ".")
-# uniq <- unique(unlist(AdamJanuary2013$weekID))
-# for (i in 1:length(uniq)) {
-#   assign(paste("Week",uniq[i],sep="."), subset(AdamJanuary2013, weekID == uniq[i]))
-# }
+AdamJune2013$WeekNr <- strftime(AdamJune2013$Begin_CS, format = "%W")
+AdamJune2013$Year <- strftime(AdamJune2013$Begin_CS, format = "%Y")
+AdamJune2013$weekID <- paste(AdamJune2013$WeekNr, AdamJune2013$Year, sep = ".")
+uniq <- unique(unlist(AdamJune2013$weekID))
+for (i in 1:length(uniq)) {
+  assign(paste("Week",uniq[i],sep="."), subset(AdamJune2013, weekID == uniq[i]))
+}
+
+AdamJanuary2013$WeekNr <- strftime(AdamJanuary2013$Begin_CS, format = "%W")
+AdamJanuary2013$Year <- strftime(AdamJanuary2013$Begin_CS, format = "%Y")
+AdamJanuary2013$weekID <- paste(AdamJanuary2013$WeekNr, AdamJanuary2013$Year, sep = ".")
+uniq <- unique(unlist(AdamJanuary2013$weekID))
+for (i in 1:length(uniq)) {
+  assign(paste("Week",uniq[i],sep="."), subset(AdamJanuary2013, weekID == uniq[i]))
+}
