@@ -25,38 +25,28 @@ if (!require(RColorBrewer)) install.packages('RColorBrewer')
 # Questions about plotKML:
 #-------------------------------------------------------------------------------------------
 
-# How to to make each session have its own color?
+# Why doens't my png work?
 # How to slow down time?
 
 # What arguments can be called? --> ChargeSession_KML <- function (ST_object, shape, kml.name, labels="", kmz=TRUE, legend=TRUE, balloon = TRUE){
 # labels = "" or points_names="" ? 
-# Colors for weekdays: kml_legend.bar(obj$Weekday, width=10, height=15 ,legend.pal=, legend.file = "kWh_per_min.png", factor.labels="Weekday")
-# Set in kml_layer: kml_colour  kml_altitude kml_alpha kml_size
-# add "size=" in kml_layer?
-# add kml_description()? (two-column data.frame) kml_description(data.frame, caption="Exploratory Spatial Data Analysis", asText=TRUE).
 
 
 #-------------------------------------------------------------------------------------------  
-# Create KML vector layer from CSV-file
+# Create KML vector layer (from CSV-file or object), kWh per minute as colors
 #-------------------------------------------------------------------------------------------
 # For shapes: https://sites.google.com/site/gmapsdevelopment/
 # For colors: http://vis.supstat.com/2013/04/plotting-symbols-and-color-palettes/ / http://www.flinklabs.com/labs/colors/
 # Extrude specifies whether to connect the point to the ground with a line
 
-CS_NuonJanuary2013 <- read.csv("Nuon_January2013.csv", header = T, sep=",")
-CS_NuonJanuary2013 <- Nuon_January2013
-CS_NuonJune2013 <- read.csv("Nuon_June2013.csv", header = T, sep=",")
-#CS_EssentJanuary2013 <- read.csv("EssentJanuary2013_final.csv", header = T, sep=",")
-#CS_EssentJune2013 <- read.csv("EssentJune2013_final.csv", header = T, sep=",")
-
-ChargeSession_KML <- function (CSV_obj, shape, file.name){
+ChargeSession_KML <- function (CSV_obj, shape, name){
   obj.sp <- CSV_obj
   obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
   obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
   shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
-  name <- paste(file.name, "kml", sep = ".")
+  name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "kWh_per_min.png")
   kml_screen(image.file = "kWh_per_min.png", position = "UL", sname = "kWh_per_min")
@@ -68,10 +58,11 @@ ChargeSession_KML <- function (CSV_obj, shape, file.name){
   kml_View(name)
 }
 
-ChargeSession_KML(CS_NuonJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "NuonJanuary2013")
-ChargeSession_KML(CS_NuonJune2013, "M:/ESDA_ThesisTool/icon54.png", "NuonJune2013")
-# ChargeSession_KML(CS_EssentJanuary2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJanuary2013")
-# ChargeSession_KML(CS_EssentJune2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "EssentJune2013")
+ChargeSession_KML(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "Week.00.Color")
+
+for (i in 1:length(WeekList)) {
+  ChargeSession_KML(i, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", WeekList[i])
+}
 
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer from CSV-file, with weekday as colors
@@ -96,7 +87,7 @@ CS_Weekdays <- function (CSV_obj, shape, file.name){
   kml_View(name)
 }
 
-CS_Weekdays(CS_NuonJanuary2013, "http://maps.google.com/mapfiles/kml/pal2/icon18.png", "NuonJanWeekday2013")
+CS_Weekdays(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal2/icon18.png", "Week.00.2013")
 
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer of Charge Point locations in 2015

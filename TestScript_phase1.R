@@ -1,3 +1,5 @@
+
+length(unique(EssentTest2013$Session_ID))
 #-------------------------------------------------------------------------------------------  
 # pre-process Essent (test)
 #-------------------------------------------------------------------------------------------
@@ -21,6 +23,12 @@
   
   # Add weekdays column
   EssentRaw$Weekday <- weekdays(as.Date(EssentRaw$Begin_CS, "%Y-%m-%d %H:%M:%S", tz = "GMT"))
+  EssentRaw$DayHour <- strftime(EssentRaw$Begin_CS, format = "%H")
+  EssentRaw$Day <- strftime(EssentRaw$Begin_CS, format = "%d")
+  EssentRaw$Week <- strftime(EssentRaw$Begin_CS, format = "%W")
+  EssentRaw$Month <- strftime(EssentRaw$Begin_CS, format = "%m")
+  EssentRaw$Year <- strftime(EssentRaw$Begin_CS, format = "%Y")
+  EssentRaw$weekID <- paste(EssentRaw$DayHour, EssentRaw$Day, EssentRaw$Month, sep = "")
   
   # Convert energy from factor to numeric
   EssentRaw$ENERGIE <- as.character(EssentRaw$ENERGIE)
@@ -65,7 +73,7 @@
   EssentRaw$timeSec <- toSeconds(EssentRaw$ConnectionTime)
   
   # Remove sessions of 0 seconds (failed sessions)
-  EssentRaw <- subset(EssentRaw, timeSec != 0)
+  EssentRaw <- subset(EssentRaw, timeSec >= 60)
   
   # Calculate kWh per minute
   EssentRaw$kWh_per_min <- ((EssentRaw$kWh_total/EssentRaw$timeSec)*60) 
@@ -82,15 +90,19 @@
   
   # Remove NA values in Latitude column 
   EssentRaw.Sessions <- EssentRaw.Sessions[!is.na(EssentRaw.Sessions$Latitude),] 
-  str(EssentRaw.Sessions)
+  
+  #Create pointID
+  EssentRaw.Sessions$pointID <- paste(EssentRaw.Sessions$Longitude, EssentRaw.Sessions$Latitude, sep = "")
+  EssentRaw.Sessions$pointID <- as.character(EssentRaw.Sessions$pointID)
   # Remove unnecessary columns
-  keep <- c("Session_ID", "Begin_CS", "End_CS", "Weekday", "kWh_per_min", "ConnectionTime", "kWh_total", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
+  keep <- c("Session_ID", "Begin_CS", "End_CS", "kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "DayHour", "Day", "Month", "Week", "Year", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider", "weekID", "pointID")
   EssentClean <- EssentRaw.Sessions[keep]
   
   # Write to csv and return object
-  write.csv(EssentClean, file = paste(obj.name, "csv", sep =".")) 
-  return (EssentClean)
-  
+  write.csv(EssentClean, file = paste("EssentTest", "csv", sep =".")) 
+  str(EssentClean)
+  length(unique(EssentClean$pointID))
+  length(unique(EssentClean$weekID))
 #-------------------------------------------------------------------------------------------  
 # pre-process Nuon (test)
 #-------------------------------------------------------------------------------------------
@@ -157,15 +169,31 @@ Adam_january <- rbind(Nuon_January2013, Essent_January2013)
 # Create function that subsets data per week
 #-------------------------------------------------------------------------------------------
 
-test.week <- AdamJune2013[1:20,]
+test.week <- Week.21.2013
+
+# Create week identifier based on week of the year (you want subset per week)
+test.week$DayHour <- strftime(test.week$Begin_CS, format = "%H")
+test.week$Day <- strftime(test.week$Begin_CS, format = "%d")
+test.week$WeekNr <- strftime(test.week$Begin_CS, format = "%W")
+test.week$Month <- strftime(test.week$Begin_CS, format = "%m")
+test.week$Year <- strftime(test.week$Begin_CS, format = "%Y")
+test.week$weekID <- paste(test.week$WeekNr, test.week$Year, sep = ".")
+
+
+
 # Create week identifier based on week of the year (you want subset per week)
 AdamJune2013$WeekNr <- strftime(AdamJune2013$Begin_CS, format = "%W")
 AdamJune2013$Year <- strftime(AdamJune2013$Begin_CS, format = "%Y")
 AdamJune2013$weekID <- paste(AdamJune2013$WeekNr, AdamJune2013$Year, sep = ".")
-uniq <- unique(unlist(AdamJune2013$weekID))
-for (i in 1:length(uniq)) {
-  assign(paste("Week",uniq[i],sep="."), subset(AdamJune2013, weekID == uniq[i]))
+
+splitWeek <- function (obj){
+  obj$weekID <- paste(obj$WeekNr, obj$Year, sep = ".")
+  uniq <- unique(unlist(obj$weekID))
+  x <- list()
+  for (i in 1:length(uniq)) {
+    name <- paste("Week",uniq[i],sep=".")
+    y <- assign(name, subset(obj, weekID == uniq[i]))
+    x[[name]] <- y
+  }
+  return (x)
 }
-
-SubWeek.Adam <- function(x){}
-
