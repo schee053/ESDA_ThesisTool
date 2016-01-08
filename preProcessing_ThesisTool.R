@@ -19,6 +19,7 @@ getwd()
 if (!require(plyr)) install.packages('plyr')
 if (!require(RCurl)) install.packages('RCurl')
 if (!require(chron)) install.packages('chron')
+if (!require(lubridate)) install.packages('lubridate')
 
 #-------------------------------------------------------------------------------------------  
 # pre-process Charge Point Dataset (latitude/longitude)
@@ -75,7 +76,7 @@ prep_NUON <- function (csv.file, obj.name){
   NuonRaw$Week <- strftime(NuonRaw$Begin_CS, format = "%W")
   NuonRaw$Month <- strftime(NuonRaw$Begin_CS, format = "%m")
   NuonRaw$Year <- strftime(NuonRaw$Begin_CS, format = "%Y")
-  NuonRaw$weekID <- paste(NuonRaw$DayHour, NuonRaw$Day, NuonRaw$Week, NuonRaw$Month, NuonRaw$Year, sep = ".")
+  NuonRaw$YearDay <- yday(NuonRaw$Begin_CS)
   
   # Rename columns: 
   names(NuonRaw)[names(NuonRaw)=="Straat"] <- "Street"
@@ -116,10 +117,11 @@ prep_NUON <- function (csv.file, obj.name){
   } 
   
   NuonRaw$timeSec <- toSeconds(NuonRaw$ConnectionTime)
+  NuonRaw$timeMin <- (NuonRaw$timeSec/60)
   
   # Remove sessions of 0 seconds (failed sessions)
   NuonRaw <- subset(NuonRaw, timeSec >= 60)
-  
+
   # Calculate kWh per minute
   NuonRaw$kWh_per_min <- ((NuonRaw$kWh_total/NuonRaw$timeSec)*60) 
   NuonRaw$kWh_per_min <- round(NuonRaw$kWh_per_min,digits=3)
@@ -141,7 +143,7 @@ prep_NUON <- function (csv.file, obj.name){
   NuonRaw.Sessions$pointID <- as.character(NuonRaw.Sessions$pointID)
   
   # Remove unnecessary columns
-  keep <- c("Session_ID", "Begin_CS", "End_CS", "kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "DayHour", "Day", "Month", "Week", "Year", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider")
+  keep <- c("Session_ID", "Begin_CS", "End_CS", "kWh_per_min", "ConnectionTime", "timeMin", "kWh_total", "Weekday", "DayHour", "Day", "Month", "Week", "Year", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider", "YearDay", "pointID")
   NuonClean <- NuonRaw.Sessions[keep]
   
   # Write to csv and return object
@@ -185,7 +187,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentRaw$Week <- strftime(EssentRaw$Begin_CS, format = "%W")
   EssentRaw$Month <- strftime(EssentRaw$Begin_CS, format = "%m")
   EssentRaw$Year <- strftime(EssentRaw$Begin_CS, format = "%Y")
-  EssentRaw$weekID <- paste(EssentRaw$DayHour, EssentRaw$Day, EssentRaw$Week, EssentRaw$Month, EssentRaw$Year, sep = ".")
+  EssentRaw$YearDay <- yday(EssentRaw$Begin_CS)
 
   # Convert energy from factor to numeric
   EssentRaw$ENERGIE <- as.character(EssentRaw$ENERGIE)
@@ -228,6 +230,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   } 
   
   EssentRaw$timeSec <- toSeconds(EssentRaw$ConnectionTime)
+  EssentRaw$timeMin <- (EssentRaw$timeSec/60)
   
   # Remove sessions of 0 seconds (failed sessions)
   EssentRaw <- subset(EssentRaw, timeSec >= 60)
@@ -253,7 +256,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentRaw.Sessions$pointID <- as.character(EssentRaw.Sessions$pointID)
   
   # Remove unnecessary columns
-  keep <- c("Session_ID", "Begin_CS", "End_CS", "kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "DayHour", "Day", "Month", "Week", "Year", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider", "weekID", "pointID")
+  keep <- c("Session_ID", "Begin_CS", "End_CS", "kWh_per_min", "ConnectionTime", "timeMin", "kWh_total", "Weekday", "DayHour", "Day", "Month", "Week", "Year", "Street", "HouseNumber", "PostalCode", "Address", "Latitude", "Longitude", "Provider", "YearDay", "pointID")
   EssentClean <- EssentRaw.Sessions[keep]
   
   # Write to csv and return object
@@ -279,7 +282,7 @@ AdamJune2013 <- rbind(Nuon_June2013, Essent_June2013)
 # List will become input for plotKML function. For each item in the list, for length of the list, run the function.
 
 splitWeek <- function (obj){
-  obj$weekID <- paste(obj$WeekNr, obj$Year, sep = ".")
+  obj$weekID <- paste(obj$Week, obj$Year, sep = ".")
   uniq <- unique(unlist(obj$weekID))
   x <- list()
   for (i in 1:length(uniq)) {
@@ -292,9 +295,9 @@ splitWeek <- function (obj){
 
 JanuaryWeekList <- splitWeek(AdamJanuary2013)
 JuneWeekList <- splitWeek(AdamJune2013)
-length(weekList)
+length(JuneWeekList)
 
-# # Cheating:
+# #To create each as seperate objects (not as a list):
 # AdamJune2013$WeekNr <- strftime(AdamJune2013$Begin_CS, format = "%W")
 # AdamJune2013$Year <- strftime(AdamJune2013$Begin_CS, format = "%Y")
 # AdamJune2013$weekID <- paste(AdamJune2013$WeekNr, AdamJune2013$Year, sep = ".")

@@ -71,6 +71,7 @@ length(unique(EssentTest2013$Session_ID))
   } 
   
   EssentRaw$timeSec <- toSeconds(EssentRaw$ConnectionTime)
+  EssentRaw$timeMin <- (EssentRaw$timeSec/60)
   
   # Remove sessions of 0 seconds (failed sessions)
   EssentRaw <- subset(EssentRaw, timeSec >= 60)
@@ -187,7 +188,7 @@ AdamJune2013$Year <- strftime(AdamJune2013$Begin_CS, format = "%Y")
 AdamJune2013$weekID <- paste(AdamJune2013$WeekNr, AdamJune2013$Year, sep = ".")
 
 splitWeek <- function (obj){
-  obj$weekID <- paste(obj$WeekNr, obj$Year, sep = ".")
+  obj$weekID <- paste(obj$Week, obj$Year, sep = ".")
   uniq <- unique(unlist(obj$weekID))
   x <- list()
   for (i in 1:length(uniq)) {
