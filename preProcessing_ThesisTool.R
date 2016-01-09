@@ -46,7 +46,7 @@ Stations <- get.stations("https://api.essent.nl/generic/downloadChargingStations
 
 # Mannualy put charge data into workspace directory and save as CSV-file!!
 list.files()
-str(NuonSplitJan2013)
+
 # Split (subset) Nuon files
 NuonSplit <- read.csv("rapportage_verbruiksdata 201301 + 201306.csv", header = T, sep=",")
 NuonSplit$Begin_CS <- as.POSIXct(paste(NuonSplit$Start), format="%d-%m-%Y %H:%M", tz = "GMT")
@@ -272,7 +272,9 @@ Essent_June2013 <- prep_ESSENT("exp_201306-62014.csv", "Essent_June2013")
 # Merge providers per month
 #-------------------------------------------------------------------------------------------
 AdamJanuary2013 <- rbind(Nuon_January2013, Essent_January2013)
+write.csv(AdamJanuary2013, file = "AdamJanuary2013.csv")
 AdamJune2013 <- rbind(Nuon_June2013, Essent_June2013)
+write.csv(AdamJune2013, file = "AdamJune2013.csv")
 
 #-------------------------------------------------------------------------------------------  
 # Subset data per week
