@@ -50,7 +50,7 @@ ChargeSession_KML <- function (CSV_obj, shape, name){
   obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
-  shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
+  shape <- shape
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "kWh_per_min.png")
@@ -63,12 +63,10 @@ ChargeSession_KML <- function (CSV_obj, shape, name){
   kml_View(name)
 }
 
-ChargeSession_KML(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "Week.00.Color")
-ChargeSession_KML(Week.00.2013, "M:/My Documents/ESDA_ThesisTool/icon54.png", "Week.00.Color")
-
+ChargeSession_KML(Week.00.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.00.Color")
 
 for (i in 1:length(WeekList)) {
-  ChargeSession_KML(i, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", WeekList[i])
+  ChargeSession_KML(i, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", WeekList[i])
 }
 
 #-------------------------------------------------------------------------------------------  
