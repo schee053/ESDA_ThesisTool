@@ -3,7 +3,7 @@
 # for the number of minutes charged, 
 # within that hour of that day
 # at that charge point.
-
+getwd()
 #-------------------------------------------------------------------------------------------  
 # pre-processing (Essent test) --> Later on, add to preProcessing script
 #-------------------------------------------------------------------------------------------
@@ -19,8 +19,6 @@ EssentRaw02 <- Week.04.2013
 #Testing lubridate package
 if (!require(lubridate)) install.packages('lubridate')
 str(EssentRaw02)
-# !!! lubridate needs time as string!
-  
 # Set connectionTime string to time
 hms(EssentRaw02$ConnectionTime)
 # Create day of the year variable (always unique since data is from one year)
@@ -97,7 +95,7 @@ CS_Bubbles <- function (CSV_obj, shape, file.name){
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
   color.pal <- c("#882E72","#1965B0","#4EB265","#F7EE55","#F1932D","#E8601C","#DC050C")
-  shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
+  shape <- "https://www.dropbox.com/s/8zlr5z21xbuiqws/car%283%29.png?dl=0"
   name <- paste(file.name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$kWh_per_min_sum,legend.pal=rainbow(7, s=1), legend.file = "kWh_per_uur.png")
@@ -110,5 +108,7 @@ CS_Bubbles <- function (CSV_obj, shape, file.name){
   kml_View(name)
 }
 
-kml_GeladenPerUur <- CS_Bubbles(GeladenPerUur, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "GeladenPerUur_Test")
+kml_GeladenPerUur <- CS_Bubbles(GeladenPerUur, "https://www.dropbox.com/s/8zlr5z21xbuiqws/car%283%29.png?dl=0", "GeladenPerUur_Test")
+
+
 
