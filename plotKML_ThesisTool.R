@@ -25,23 +25,17 @@ if (!require(RColorBrewer)) install.packages('RColorBrewer')
 # Questions about plotKML:
 #-------------------------------------------------------------------------------------------
 
-# Why doens't my png work?
 # Is there a way to make a bubble map in plotKML?
 # How to slow down time?
 
-
-
-
-
 # What arguments can be called? --> ChargeSession_KML <- function (ST_object, shape, kml.name, labels="", kmz=TRUE, legend=TRUE, balloon = TRUE){
 # labels = "" or points_names="" ? 
-
 
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer (from CSV-file or object), kWh per minute as colors
 #-------------------------------------------------------------------------------------------
 # For shapes: https://sites.google.com/site/gmapsdevelopment/
-# For colors: http://vis.supstat.com/2013/04/plotting-symbols-and-color-palettes/ / http://www.flinklabs.com/labs/colors/
+# For colors: http://research.stowers-institute.org/efg/R/Color/Chart/ColorChart.pdf 
 # Extrude specifies whether to connect the point to the ground with a line
 
 ChargeSession_KML <- function (CSV_obj, shape, name){
@@ -65,40 +59,40 @@ ChargeSession_KML <- function (CSV_obj, shape, name){
 
 ChargeSession_KML(Week.00.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.00.Color")
 
-for (i in 1:length(WeekList)) {
-  ChargeSession_KML(i, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", WeekList[i])
-}
+# for (i in 1:length(WeekList)) {
+#   ChargeSession_KML(i, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", WeekList[i])
+# }
 
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer from CSV-file, with weekday as colors
 #-------------------------------------------------------------------------------------------
 
-CS_Weekdays <- function (CSV_obj, shape, file.name){
+CS_Weekdays <- function (CSV_obj, shape, name){
   obj.sp <- CSV_obj
   obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
   obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
-  shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
-  name <- paste(file.name, "kml", sep = ".")
+  shape <- shape
+  name <- paste(name, "kml", sep = ".")
   kml_open(name)
-  kml_legend.bar(obj.sp$Weekday,legend.pal=brewer.pal(7, "Set1"), legend.file = "Weekday.png")
-  kml_screen(image.file = "Weekday", position = "UL", sname = "Weekday")
+  kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "kWh_per_min.png")
+  kml_screen(image.file = "kWh_per_min.png", position = "UL", sname = "kWh_per_min")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
-                          extrude=TRUE, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
-                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=Weekday, colour_scale=brewer.pal(7, "Set1"), shape=shape, 
+                          extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_View(name)
 }
 
-CS_Weekdays(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal2/icon18.png", "Week.00.2013")
+CS_Weekdays(Week.00.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.00.Color")
 
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer of Charge Point locations in 2015
 #-------------------------------------------------------------------------------------------
 kml_stations <- function (csv.name, shape, kml.name, legend=TRUE, balloon = TRUE){
-  obj <- read.csv(csv.name, header = T, sep=";")
+  obj <- read.csv(csv.name, header = T, sep=",")
   obj$Address <- paste(obj$Street, obj$HouseNumber, sep=" ")
   obj <- obj[ !duplicated(obj["CSExternalID"]),]
   coordinates(obj) <- ~Longitude+Latitude
@@ -106,19 +100,19 @@ kml_stations <- function (csv.name, shape, kml.name, legend=TRUE, balloon = TRUE
   # Remove unnecessary collomn
   obj_keep <- c("CPExternalID", "Street", "HouseNumber", "PostalCode", "City", "Provider", "VehicleType", "Address")
   obj <- obj[obj_keep] 
-  
+  palette <- c("#FF1493", "#FFFF00")
   shape <- shape
   kml_open(kml.name)
-  kml_legend.bar(obj$Provider, legend.pal=SAGA_pal[[1]][c(1,20)], legend.file = "Providers.png") 
+  kml_legend.bar(obj$Provider, legend.pal= palette, legend.file = "Providers.png") 
   kml_screen(image.file = "Providers.png", position = "UL", sname = "Providers")
-  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=SAGA_pal[[1]], points_names="", balloon=TRUE)
+  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=palette, points_names="", balloon=TRUE, legend=TRUE)
   kml_close(kml.name)
   kml_View(kml.name)
 }
 
-kml_stations("ChargeStations.csv", "http://maps.google.com/mapfiles/kml/paddle/wht-blank.png", "Stations2015.kml", legend=TRUE, balloon=TRUE)
+kml_stations("ChargeStations.csv", "M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "Stations2015.kml")
 #------------------------------------------------------------------------------------------- 
-# Create KML vector layer of Charge Point locations in 2013
+# Create KML vector layer of Charge Point locations in 2013 (UNFINISHED)
 #-------------------------------------------------------------------------------------------
 NuonClean01$LonLat <- paste(NuonClean01$Longitude, NuonClean01$Latitude)
 EssentClean06$LonLat < paste(EssentClean06$Longitude, EssentClean01$Latitude)
@@ -134,11 +128,6 @@ Stations2013 <- join(XYunique, Stations, by = LonLat , type = "left", match = "f
 # Create STIDF (space-time irregular data frame) object from CSV-file
 #-------------------------------------------------------------------------------------------
 
-CS_NuonJanuary2013 <- read.csv("NuonJanuary2013_final.csv", header = T, sep=",")
-CS_NuonJune2013 <- read.csv("NuonJune2013_final.csv", header = T, sep=",")
-#CS_EssentJanuary2013 <- read.csv("EssentJanuary2013_final.csv", header = T, sep=",")
-#CS_EssentJune2013 <- read.csv("EssentJune2013_final.csv", header = T, sep=",")
-
 ST_DF <- function (obj){
   obj$Address <- paste(obj$Street, obj$HouseNumber, sep="_")
   CP_obj <- SpatialPoints(obj[,c("Longitude","Latitude")])
@@ -149,10 +138,8 @@ ST_DF <- function (obj){
   return (CP_obj.st)
 } 
 
-plotKML(ST_NuonJanuary2013)
-ST_NuonJanuary2013 <- ST_DF(CS_NuonJanuary2013)
-ST_NuonJune2013 <- ST_DF(CS_NuonJune2013)
-#CS_STEssentJanuary2013 <- ST_DF(CS_EssentJanuary2013)
-#CS_STEssentJune2013 <- ST_DF(CS_EssentJune2013)
+# ST_AdamJanuary2013 <- ST_DF(AdamJanuary2013)
+# ST_AdamJune2013 <- ST_DF(AdamJune2013)
 
 # You can now use plotKML or KML function to plot STIDF object
+# plotKML(ST_AdamJanuary2013)
