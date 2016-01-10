@@ -35,7 +35,8 @@ if (!require(RColorBrewer)) install.packages('RColorBrewer')
 # Create KML vector layer (from CSV-file or object), kWh per minute as colors
 #-------------------------------------------------------------------------------------------
 # For shapes: https://sites.google.com/site/gmapsdevelopment/
-# For colors: http://research.stowers-institute.org/efg/R/Color/Chart/ColorChart.pdf 
+# For colors: http://research.stowers-institute.org/efg/R/Color/Chart/ColorChart.pdf
+# Legend position: choose from --> "UL","ML","LL","BC","LR","MR","UR","TC"
 # Extrude specifies whether to connect the point to the ground with a line
 
 ChargeSession_KML <- function (CSV_obj, shape, name){
@@ -44,6 +45,7 @@ ChargeSession_KML <- function (CSV_obj, shape, name){
   obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
+  kWhPal <- brewer.pal(9, "RdYlGn")
   shape <- shape
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
@@ -57,8 +59,8 @@ ChargeSession_KML <- function (CSV_obj, shape, name){
   kml_View(name)
 }
 
-ChargeSession_KML(Week.00.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.00.Color")
-
+ChargeSession_KML(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.2013")
+ChargeSession_KML(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.24.2013")
 # for (i in 1:length(WeekList)) {
 #   ChargeSession_KML(i, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", WeekList[i])
 # }
@@ -73,21 +75,22 @@ CS_Weekdays <- function (CSV_obj, shape, name){
   obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
+  weekpal <- c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B")
   shape <- shape
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
-  kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "kWh_per_min.png")
-  kml_screen(image.file = "kWh_per_min.png", position = "UL", sname = "kWh_per_min")
+  kml_legend.bar(obj.sp$Weekday,legend.pal=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), legend.file = "Weekdays.png")
+  kml_screen(image.file = "Weekdays.png", position = "ML", sname = "Weekdays")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
                           extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
-                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=Weekday, colour_scale=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), shape=shape, 
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_View(name)
 }
 
-CS_Weekdays(Week.00.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.00.Color")
-
+CS_Weekdays(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Days")
+CS_Weekdays(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Days")
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer of Charge Point locations in 2015
 #-------------------------------------------------------------------------------------------
@@ -100,12 +103,12 @@ kml_stations <- function (csv.name, shape, kml.name, legend=TRUE, balloon = TRUE
   # Remove unnecessary collomn
   obj_keep <- c("CPExternalID", "Street", "HouseNumber", "PostalCode", "City", "Provider", "VehicleType", "Address")
   obj <- obj[obj_keep] 
-  palette <- c("#FF1493", "#FFFF00")
+  statPal <- c("#FF1493", "#FFFF00")
   shape <- shape
   kml_open(kml.name)
-  kml_legend.bar(obj$Provider, legend.pal= palette, legend.file = "Providers.png") 
+  kml_legend.bar(obj$Provider, legend.pal= c("#FF1493", "#FFFF00"), legend.file = "Providers.png") 
   kml_screen(image.file = "Providers.png", position = "UL", sname = "Providers")
-  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=palette, points_names="", balloon=TRUE, legend=TRUE)
+  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, legend=TRUE)
   kml_close(kml.name)
   kml_View(kml.name)
 }
