@@ -1,6 +1,9 @@
 #-------------------------------------------------------------------------------------------  
 # plotKML subset_test
 #-------------------------------------------------------------------------------------------
+
+#### http://plotkml.r-forge.r-project.org/plotKML.html
+
 # subset per week
 # insert subsets into chargeSession function
 # ChargeSession function: doesn't make a kmz file (no legend!) + icon doesn't work.
@@ -27,13 +30,14 @@ ChargeSession_KML <- function (CSV_obj, shape, file.name){
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
+  kml_compress(name)
   kml_View(name)
 }
 
 ChargeSession_KML(test.plot, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "testjun062013")
 ChargeSession_KML(Week.00.2013, "http://maps.google.com/mapfiles/kml/pal4/icon54.png", "Week.00.2013")
 
-
+Sys.getenv("R_ZIPCMD", "zip")
 
 CS_Weekdays <- function (CSV_obj, shape, file.name){
   obj.sp <- CSV_obj
@@ -43,7 +47,7 @@ CS_Weekdays <- function (CSV_obj, shape, file.name){
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
   color.pal <- c("#882E72","#1965B0","#4EB265","#F7EE55","#F1932D","#E8601C","#DC050C")
   shape <- "http://maps.google.com/mapfiles/kml/pal4/icon54.png"
-  name <- paste(file.name, "kml", sep = ".")
+  name <- paste(file.name, "kmz", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$Weekday,legend.pal=rainbow(7, s=1), legend.file = "Weekday.png")
   kml_screen(image.file = "Weekday", position = "UL", sname = "Weekday")
@@ -55,9 +59,6 @@ CS_Weekdays <- function (CSV_obj, shape, file.name){
   kml_View(name)
 }
 
-
-
-
 CS_Weekdays(test.plot, "http://maps.google.com/mapfiles/kml/pal4/icon18.png", "weekTestJun2013")
 
 library(RColorBrewer)
@@ -67,6 +68,7 @@ display.brewer.all()
 #-------------------------------------------------------------------------------------------  
 # plotKML size test
 #-------------------------------------------------------------------------------------------
+# https://r-forge.r-project.org/scm/viewvc.php/pkg/R/aesthetics.R?root=plotkml&view=diff&r1=435&r2=436
 
 str(obj.sp)
 
@@ -80,7 +82,7 @@ name <- "Size.kml"
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
   weekpal <- c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B")
   shape <- shape
-  name <- paste(name, "kml", sep = ".")
+  name <- paste(name, "kmz", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$Weekday,legend.pal=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), legend.file = "Weekdays.png")
   kml_screen(image.file = "Weekdays.png", position = "ML", sname = "Weekdays")

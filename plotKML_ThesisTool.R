@@ -56,6 +56,7 @@ CS_kWhPerMin <- function (CSV_obj, shape, name){
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
+  kml_compress(name)
   kml_View(name)
 }
 
@@ -87,6 +88,7 @@ CS_Weekdays <- function (CSV_obj, shape, name){
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=Weekday, colour_scale=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), shape=shape, 
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", size=kWh_total, balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
+  kml_compress(name)
   kml_View(name)
 }
 
@@ -114,6 +116,7 @@ CS_kWhTotal <- function (CSV_obj, shape, name){
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_total, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
+  kml_compress(name)
   kml_View(name)
 }
 
@@ -138,6 +141,7 @@ kml_stations <- function (csv.name, shape, kml.name, legend=TRUE, balloon = TRUE
   kml_screen(image.file = "Providers.png", position = "UL", sname = "Providers")
   kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, legend=TRUE)
   kml_close(kml.name)
+  kml_compress(name)
   kml_View(kml.name)
 }
 
@@ -179,6 +183,7 @@ kml_legend.bar(obj$Provider, legend.pal= palette, legend.file = "Providers.png")
 kml_screen(image.file = "Providers.png", position = "UL", sname = "Providers")
 kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=palette, points_names="", balloon=TRUE, legend=TRUE)
 kml_close(kml.name)
+kml_compress(name)
 kml_View(kml.name)
 
 #-------------------------------------------------------------------------------------------  
