@@ -57,7 +57,7 @@ CS_kWhPerMin <- function (CSV_obj, shape, name){
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_compress(name)
-  kml_View(name)
+  # kml_View(name)
 }
 
 CS_kWhPerMin(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Minutes")
@@ -89,7 +89,7 @@ CS_Weekdays <- function (CSV_obj, shape, name){
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", size=kWh_total, balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_compress(name)
-  kml_View(name)
+  # kml_View(name)
 }
 
 CS_Weekdays(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Days")
@@ -117,7 +117,7 @@ CS_kWhTotal <- function (CSV_obj, shape, name){
                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_compress(name)
-  kml_View(name)
+  # kml_View(name)
 }
 
 CS_kWhTotal(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Totals")
@@ -125,7 +125,7 @@ CS_kWhTotal(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", 
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer of Charge Point locations in 2015
 #-------------------------------------------------------------------------------------------
-kml_stations <- function (csv.name, shape, kml.name, legend=TRUE, balloon = TRUE){
+kmlStations2015 <- function (csv.name, shape, name){
   obj <- read.csv(csv.name, header = T, sep=",")
   obj$Address <- paste(obj$Street, obj$HouseNumber, sep=" ")
   obj <- obj[ !duplicated(obj["CSExternalID"]),]
@@ -136,55 +136,59 @@ kml_stations <- function (csv.name, shape, kml.name, legend=TRUE, balloon = TRUE
   obj <- obj[obj_keep] 
   statPal <- c("#FF1493", "#FFFF00")
   shape <- shape
-  kml_open(kml.name)
+  name <- paste(name, "kml", sep = ".")
+  kml_open(name)
   kml_legend.bar(obj$Provider, legend.pal= c("#FF1493", "#FFFF00"), legend.file = "Providers.png") 
-  kml_screen(image.file = "Providers.png", position = "UL", sname = "Providers")
-  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, legend=TRUE)
-  kml_close(kml.name)
+  kml_screen(image.file = "Providers.png", position = "MR", sname = "Providers")
+  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, kmz=TRUE, legend=TRUE)
+  kml_close(name)
   kml_compress(name)
-  kml_View(kml.name)
+  # kml_View(kml.name)
 }
 
-kml_stations("ChargeStations.csv", "M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "Stations2015.kml")
+kmlStations2015("ChargeStations.csv", "M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "Stations2015")
 
 #------------------------------------------------------------------------------------------- 
 # Create KML vector layer of Charge Point locations in 2013 (UNFINISHED)
 #-------------------------------------------------------------------------------------------
 # Create one Amsterdam2013 sessions file
 Adam2013 <- rbind(AdamJanuary2013, AdamJune2013)
-keep <- c("Latitude", "Longitude", "Address", "Provider")
-AdamClean <- Adam2013[keep]
-# Aggregate sessions to unique charge points
-AdamClean$Prov_nr <- gsub("Nuon", "01", AdamClean$Provider, fixed = TRUE)
-AdamClean$Prov_nr <- gsub("Essent", "02", AdamClean$Prov_nr, fixed = TRUE)
-AdamClean$Prov_nr <- as.numeric(AdamClean$Prov_nr)
-AdamAgg <- aggregate(x = AdamClean, by = list(AdamClean$Latitude, AdamClean$Longitude, AdamClean$Address), FUN = mean)
-keep <- c("Group.1", "Group.2", "Group.3", "Prov_nr")
-AdamAgg <- AdamAgg[keep]
-names(AdamAgg)[names(AdamAgg)=="Group.1"] <- "Latitude"
-names(AdamAgg)[names(AdamAgg)=="Group.2"] <- "Longitude"
-names(AdamAgg)[names(AdamAgg)=="Group.3"] <- "Address"
-names(AdamAgg)[names(AdamAgg)=="Prov_nr"] <- "Provider" 
-AdamAgg$Provider <- as.character(AdamAgg$Provider)
-AdamAgg$Provider <- gsub("1", "Nuon", AdamAgg$Provider, fixed = TRUE)
-AdamAgg$Provider <- gsub("2", "Essent", AdamAgg$Provider, fixed = TRUE)
-# Plot unique charge points 2013 in kml-file
-obj <- AdamAgg
-coordinates(obj) <- ~Longitude+Latitude
-proj4string(obj) <- CRS("+proj=longlat +datum=WGS84")
-# Remove unnecessary collomn
-obj_keep <- c("Provider", "Address")
-obj <- obj[obj_keep] 
-palette <- c("#FF1493", "#FFFF00")
-shape <- "M:/My Documents/ESDA_ThesisTool/icons/Station1.png" 
-kml.name <- "Stations2013.kml"
-kml_open(kml.name)
-kml_legend.bar(obj$Provider, legend.pal= palette, legend.file = "Providers.png") 
-kml_screen(image.file = "Providers.png", position = "UL", sname = "Providers")
-kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=palette, points_names="", balloon=TRUE, legend=TRUE)
-kml_close(kml.name)
-kml_compress(name)
-kml_View(kml.name)
+
+kmlStations2013 <- function(obj, shape, name){
+  AdamClean <- obj
+  keep <- c("Latitude", "Longitude", "Address", "Provider")
+  AdamClean <- AdamClean[keep]
+  # Aggregate sessions to unique charge points
+  AdamClean$Prov_nr <- gsub("Nuon", "01", AdamClean$Provider, fixed = TRUE)
+  AdamClean$Prov_nr <- gsub("Essent", "02", AdamClean$Prov_nr, fixed = TRUE)
+  AdamClean$Prov_nr <- as.numeric(AdamClean$Prov_nr)
+  AdamAgg <- aggregate(x = AdamClean, by = list(AdamClean$Latitude, AdamClean$Longitude, AdamClean$Address), FUN = mean)
+  keep <- c("Group.1", "Group.2", "Group.3", "Prov_nr")
+  AdamAgg <- AdamAgg[keep]
+  names(AdamAgg)[names(AdamAgg)=="Group.1"] <- "Latitude"
+  names(AdamAgg)[names(AdamAgg)=="Group.2"] <- "Longitude"
+  names(AdamAgg)[names(AdamAgg)=="Group.3"] <- "Address"
+  names(AdamAgg)[names(AdamAgg)=="Prov_nr"] <- "Provider" 
+  AdamAgg$Provider <- as.character(AdamAgg$Provider)
+  AdamAgg$Provider <- gsub("1", "Nuon", AdamAgg$Provider, fixed = TRUE)
+  AdamAgg$Provider <- gsub("2", "Essent", AdamAgg$Provider, fixed = TRUE)
+  # Plot unique charge points 2013 in kml-file
+  obj <- AdamAgg
+  coordinates(obj) <- ~Longitude+Latitude
+  proj4string(obj) <- CRS("+proj=longlat +datum=WGS84")
+  statPal <- c("#FF1493", "#FFFF00")
+  shape <- shape
+  name <- paste(name, "kml", sep = ".")
+  kml_open(name)
+  kml_legend.bar(obj$Provider, legend.pal= c("#FF1493", "#FFFF00"), legend.file = "Providers.png") 
+  kml_screen(image.file = "Providers.png", position = "MR", sname = "Providers")
+  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, kmz=TRUE, legend=TRUE)
+  kml_close(name)
+  kml_compress(name)
+  kml_View(name)
+} 
+
+kmlStations2013(Adam2013,"M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "Stations2013")
 
 #-------------------------------------------------------------------------------------------  
 # Create STIDF (space-time irregular data frame) object from CSV-file
