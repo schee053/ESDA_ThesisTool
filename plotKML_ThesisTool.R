@@ -107,7 +107,7 @@ CS_Weekdays <- function (CSV_obj, shape, name){
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$Weekday,legend.pal=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), legend.file = "Weekdays.png")
-  kml_screen(image.file = "http://s19.postimg.org/czgfzyybn/Weekday.png", position = "ML", sname = "Weekdays")
+  kml_screen(image.file = "http://s19.postimg.org/6gs70sbib/Weekdays.png", position = "ML", sname = "Weekdays")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
                           extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=Weekday, colour_scale=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), shape=shape, 
@@ -162,7 +162,7 @@ CS_InvWeekdays <- function (CSV_obj, shape, name){
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$Weekday,legend.pal=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), legend.file = "Weekdays.png")
-  kml_screen(image.file = "http://s19.postimg.org/czgfzyybn/Weekday.png", position = "ML", sname = "Weekdays")
+  kml_screen(image.file = "http://s19.postimg.org/6gs70sbib/Weekdays.png", position = "ML", sname = "Weekdays")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
                           extrude=TRUE, z.scale=0, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_total*100, colour=Weekday, colour_scale=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), shape=shape, 
