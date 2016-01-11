@@ -23,80 +23,109 @@ if (!require(RCurl)) install.packages('RCurl')
 if (!require(chron)) install.packages('chron')
 if (!require(lubridate)) install.packages('lubridate')
 #-------------------------------------------------------------------------------------------  
-# pre-processing (Essent test) --> Later on, add to preProcessing script
+# pre-processing (Essent test) --> later on add to preProcessing script
 #-------------------------------------------------------------------------------------------
-write.csv(Week.04.2013, file = "Week.04.2013.csv")
-# Continue from TestScript_phase1
-EssentRaw02 <- Week.04.2013
-# Werkt niet, maar zou moeten werken:
-# EssentRaw02 <- JanuaryWeekList[1]
-# length(unique(EssentRaw02$pointID))
-# length(unique(EssentRaw02$weekID))
-# JanuaryWeekList[1]
+# Continue from preProcessing script
+AdamSubset <- AdamJanuary2013[1:100,]
+# Check number of unique charge points
+length(unique(AdamSubset$pointID))
+str(AdamSubset)
 
 #Testing lubridate package
 if (!require(lubridate)) install.packages('lubridate')
-str(EssentRaw02)
+str(AdamSubset)
 # Set connectionTime string to time
-hms(EssentRaw02$ConnectionTime)
+hms(AdamSubset$ConnectionTime)
 # Create day of the year variable (always unique since data is from one year)
-EssentRaw02$YearDay <- yday(EssentRaw02$Begin_CS)
+AdamSubset$YearDay <- yday(AdamSubset$Begin_CS)
 # Extract begin time
-EssentRaw02$beginTime <- paste(hour(EssentRaw02$Begin_CS), minute(EssentRaw02$Begin_CS), second(EssentRaw02$Begin_CS), sep = ":")
+AdamSubset$beginTime <- paste(hour(AdamSubset$Begin_CS), minute(AdamSubset$Begin_CS), second(AdamSubset$Begin_CS), sep = ":")
 # Create session interval 
-EssentRaw02$sessionInterval <- interval((EssentRaw02$Begin_CS), (EssentRaw02$End_CS))
+AdamSubset$sessionInterval <- interval((AdamSubset$Begin_CS), (AdamSubset$End_CS))
 # Create hour interval (make a loop!)
-hourBeginTime <- "20130101_000000"
-hourEndTime <- "20130101_005959"
-EssentRaw02$hourInterval <- interval(ymd_hms(hourBeginTime), ymd_hms(hourEndTime), tz = 'GMT')
+hourBeginTime <- ymd_hms("20130101_000000")
+hourBeginTime + days(0:30)
+hourEndTime <- ymd_hms("20130101_005959")
+hourEndTime + days(0:30)
+hourBeginTime 
+hourEndTime
+AdamSubset$hourInterval <- interval(hourBeginTime, hourEndTime, tz = 'GMT')
+
+# Try to create unique day+time combinations (1464 rows)
+# df <- data.frame(matrix(ncol=1500, nrow=31))
+# beginDate <- ymd("20130101")
+# hourBeginTime <- hms("00:00:00")
+# dft$beginDate <- beginDate + days(0:30)
+# df$hourBeginTime <- hourBeginTime + hours(0:23)
+# endDate <- ymd("20130101")
+# hourEndTime <- hms("00:59:59")
+# df$endDate <- endDate + days(0:30)
+# df$hourEndTime <- hourEndTime + hours(0:23)
+# df$Days <- interval(beginDate, endDate)
+# df$hourDay <- interval(hourBeginTime, hourEndTime, tz = 'GMT')
+# for i in (length(Days)) {
+#   DayTime <- Days + hourDay
+}
+  
+  
 # Shift time interval by one hour (assign new hour to new column!)
-int_shift(EssentRaw02$hourInterval, duration(hours = +1))
-EssentRaw02$hour00 <- EssentRaw02$hourInterval
-EssentRaw02$hour01 <- int_shift(EssentRaw02$hourInterval, duration(hours = +1))
-EssentRaw02$hour02 <- int_shift(EssentRaw02$hourInterval, duration(hours = +2))
-EssentRaw02$hour03 <- int_shift(EssentRaw02$hourInterval, duration(hours = +3))
-EssentRaw02$hour04 <- int_shift(EssentRaw02$hourInterval, duration(hours = +4))
-EssentRaw02$hour05 <- int_shift(EssentRaw02$hourInterval, duration(hours = +5))
-EssentRaw02$hour06 <- int_shift(EssentRaw02$hourInterval, duration(hours = +6))
-EssentRaw02$hour07 <- int_shift(EssentRaw02$hourInterval, duration(hours = +7))
-EssentRaw02$hour08 <- int_shift(EssentRaw02$hourInterval, duration(hours = +8))
-EssentRaw02$hour09 <- int_shift(EssentRaw02$hourInterval, duration(hours = +9))
-EssentRaw02$hour10 <- int_shift(EssentRaw02$hourInterval, duration(hours = +10))
-EssentRaw02$hour12 <- int_shift(EssentRaw02$hourInterval, duration(hours = +11))
-EssentRaw02$hour13 <- int_shift(EssentRaw02$hourInterval, duration(hours = +12))
-EssentRaw02$hour14 <- int_shift(EssentRaw02$hourInterval, duration(hours = +13))
-EssentRaw02$hour15 <- int_shift(EssentRaw02$hourInterval, duration(hours = +14))
-EssentRaw02$hour16 <- int_shift(EssentRaw02$hourInterval, duration(hours = +15))
-EssentRaw02$hour17 <- int_shift(EssentRaw02$hourInterval, duration(hours = +16))
-EssentRaw02$hour18 <- int_shift(EssentRaw02$hourInterval, duration(hours = +17))
-EssentRaw02$hour19 <- int_shift(EssentRaw02$hourInterval, duration(hours = +18))
-EssentRaw02$hour20 <- int_shift(EssentRaw02$hourInterval, duration(hours = +19))
-EssentRaw02$hour21 <- int_shift(EssentRaw02$hourInterval, duration(hours = +20))
-EssentRaw02$hour22 <- int_shift(EssentRaw02$hourInterval, duration(hours = +21))
-EssentRaw02$hour23 <- int_shift(EssentRaw02$hourInterval, duration(hours = +22))
-EssentRaw02$hour24 <- int_shift(EssentRaw02$hourInterval, duration(hours = +23))
+AdamSubset$hour00 <- AdamSubset$hourInterval
+AdamSubset$hour01 <- int_shift(AdamSubset$hourInterval, duration(hours = +1))
+AdamSubset$hour02 <- int_shift(AdamSubset$hourInterval, duration(hours = +2))
+AdamSubset$hour03 <- int_shift(AdamSubset$hourInterval, duration(hours = +3))
+AdamSubset$hour04 <- int_shift(AdamSubset$hourInterval, duration(hours = +4))
+AdamSubset$hour05 <- int_shift(AdamSubset$hourInterval, duration(hours = +5))
+AdamSubset$hour06 <- int_shift(AdamSubset$hourInterval, duration(hours = +6))
+AdamSubset$hour07 <- int_shift(AdamSubset$hourInterval, duration(hours = +7))
+AdamSubset$hour08 <- int_shift(AdamSubset$hourInterval, duration(hours = +8))
+AdamSubset$hour09 <- int_shift(AdamSubset$hourInterval, duration(hours = +9))
+AdamSubset$hour10 <- int_shift(AdamSubset$hourInterval, duration(hours = +10))
+AdamSubset$hour12 <- int_shift(AdamSubset$hourInterval, duration(hours = +11))
+AdamSubset$hour13 <- int_shift(AdamSubset$hourInterval, duration(hours = +12))
+AdamSubset$hour14 <- int_shift(AdamSubset$hourInterval, duration(hours = +13))
+AdamSubset$hour15 <- int_shift(AdamSubset$hourInterval, duration(hours = +14))
+AdamSubset$hour16 <- int_shift(AdamSubset$hourInterval, duration(hours = +15))
+AdamSubset$hour17 <- int_shift(AdamSubset$hourInterval, duration(hours = +16))
+AdamSubset$hour18 <- int_shift(AdamSubset$hourInterval, duration(hours = +17))
+AdamSubset$hour19 <- int_shift(AdamSubset$hourInterval, duration(hours = +18))
+AdamSubset$hour20 <- int_shift(AdamSubset$hourInterval, duration(hours = +19))
+AdamSubset$hour21 <- int_shift(AdamSubset$hourInterval, duration(hours = +20))
+AdamSubset$hour22 <- int_shift(AdamSubset$hourInterval, duration(hours = +21))
+AdamSubset$hour23 <- int_shift(AdamSubset$hourInterval, duration(hours = +22))
+AdamSubset$hour24 <- int_shift(AdamSubset$hourInterval, duration(hours = +23))
 # Check if they intersect
-EssentRaw02$Overlap <- int_overlaps(EssentRaw02$sessionInterval, EssentRaw02$hourInterval)
+AdamSubset$Overlap <- int_overlaps(AdamSubset$sessionInterval, AdamSubset$hourInterval)
+# Extract difference in time intervals (minutes of session interval, within hour interval)
+dates1 <- AdamSubset[,42]
+dates2 <- AdamSubset$sessionInterval[1]
+as.duration(dates2)
+as.period(dates2)
+overlapTimeInterval <- setdiff(dates1, dates2)
 # Get length of interval in minutes
-EssentRaw02$Int.minutes <- (int_length(EssentRaw02$sessionInterval)/60)
-# Extract difference in time intervals
-dates2 <- EssentRaw02$sessionInterval[1]
-hourBeginTime <- "20130129_140000"
-hourEndTime <- "20130129_150000"
-hourInterval <- interval(ymd_hms(hourBeginTime), ymd_hms(hourEndTime), tz = 'GMT')
-hourInterval
-dates2 
-hourInterval %within% dates2
-date3 <- setdiff(as.duration(EssentRaw02$sessionInterval) - as.duration(EssentRaw02$hourInterval))
+int_length(overlapTimeInterval)/60
 
-int_diff(EssentRaw02$sessionInterval, EssentRaw02$hourInterval)
+for (i in (length(AdamSubset))){
+  if (int_overlaps(AdamSubset$sessionInterval, AdamSubset[,29]) == TRUE){
+    AdamSubset$OverlapInt <- setdiff(AdamSubset[,29], AdamSubset$sessionInterval)
+    AdamSubset$OverlapMin <- int_length(AdamSubset$Overlap)/60
+    AdamSubset[,10] + 1 
+  }
+  else{
+    AdamSubset[,10] + 1
+  }
+}
 
-# try --> as.difftime(c("0:3:20", "11:23:15")) --> use only the times (can you do this for time intervals?)
-# try %within%
-# try %in% 
-# http://www.r-statistics.com/2012/03/do-more-with-dates-and-times-in-r-with-lubridate-1-1-0/
-# https://stat.ethz.ch/R-manual/R-devel/library/base/html/difftime.html
 
+
+# check_overlaps <- function(intervals) {
+#   results <- 
+#     matrix(rep(NA, length(intervals)*length(na.omit(intervals))), 
+#            nrow=length(intervals))
+#   for (i in 1:length(intervals)) {
+#     results[i, ] <- int_overlaps(intervals[i], na.omit(intervals))
+#   }
+#   results
+# }
 #-------------------------------------------------------------------------------------------  
 # Function for the visualisation of hour totals:
 #-------------------------------------------------------------------------------------------
