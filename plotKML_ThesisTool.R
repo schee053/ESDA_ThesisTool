@@ -25,9 +25,6 @@ if (!require(RColorBrewer)) install.packages('RColorBrewer')
 # Questions about plotKML:
 #-------------------------------------------------------------------------------------------
 
-# Is there a way to make a bubble map in plotKML?
-# How to slow down time?
-
 # What arguments can be called? --> ChargeSession_KML <- function (ST_object, shape, kml.name, labels="", kmz=TRUE, legend=TRUE, balloon = TRUE){
 # labels = "" or points_names="" ? 
 
@@ -50,18 +47,18 @@ CS_kWhPerMin <- function (CSV_obj, shape, name){
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$kWh_per_min,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "kWh_per_min.png")
-  kml_screen(image.file = "kWh_per_min.png", position = "ML", sname = "kWh_per_min")
+  kml_screen(image.file = "http://s19.postimg.org/9xu93rakj/k_Wh_per_min.png", position = "ML", sname = "kWh_per_min")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
                           extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
-                          labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
+                          labels="", LabelScale=0, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE, points_names=obj.sp$Address)
   kml_close(name)
   kml_compress(name)
   # kml_View(name)
 }
 
-CS_kWhPerMin(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Minutes")
-CS_kWhPerMin(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.24.Minutes")
+CS_kWhPerMin(Week.02.2013, "http://s19.postimg.org/futj6u2bj/EVcar_1.png", "Week.02.Minutes")
+CS_kWhPerMin(Week.24.2013, "http://s19.postimg.org/futj6u2bj/EVcar_1.png", "Week.24.Minutes")
 
 # for (i in 1:length(WeekList)) {
 #   ChargeSession_KML(i, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", WeekList[i])
@@ -82,18 +79,18 @@ CS_kWhTotal <- function (CSV_obj, shape, name){
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$kWh_total,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "kWh_total.png")
-  kml_screen(image.file = "kWh_total.png", position = "ML", sname = "kWh_total")
+  kml_screen(image.file = "http://s19.postimg.org/3y6i03ps3/k_Wh_total.png", position = "ML", sname = "kWh_total")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
                           extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_total, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
-                          labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
+                          labels="", LabelScale=0, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE, points_names=obj.sp$Address)
   kml_close(name)
   kml_compress(name)
   # kml_View(name)
 }
 
-CS_kWhTotal(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Totals")
-CS_kWhTotal(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.24.Totals")
+CS_kWhTotal(Week.02.2013, "http://s19.postimg.org/futj6u2bj/EVcar_1.png", "Week.02.Totals")
+CS_kWhTotal(Week.24.2013, "http://s19.postimg.org/futj6u2bj/EVcar_1.png", "Week.24.Totals")
 
 #---------------------------------------------------------------------------------------------------------------------------  
 # Create KML vector layer (from CSV-file or object), with weekday as colors, kWh_per_minute in height and kWh_total in size.
@@ -110,19 +107,73 @@ CS_Weekdays <- function (CSV_obj, shape, name){
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj.sp$Weekday,legend.pal=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), legend.file = "Weekdays.png")
-  kml_screen(image.file = "Weekdays.png", position = "ML", sname = "Weekdays")
+  kml_screen(image.file = "http://s19.postimg.org/czgfzyybn/Weekday.png", position = "ML", sname = "Weekdays")
   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
                           extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=Weekday, colour_scale=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), shape=shape, 
-                          labels="", LabelScale=0.5, altitudeMode="relativeToGround", size=kWh_total, balloon = TRUE, kmz=TRUE, legend=TRUE)
+                          labels="", LabelScale=0, altitudeMode="relativeToGround", size=kWh_total, balloon = TRUE, kmz=TRUE, legend=TRUE, points_names=obj.sp$Address)
   kml_close(name)
   kml_compress(name)
   # kml_View(name)
 }
 
-CS_Weekdays(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.Days")
-CS_Weekdays(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.24.Days")
+CS_Weekdays(Week.02.2013, "http://s19.postimg.org/futj6u2bj/EVcar_1.png", "Week.02.Days")
+CS_Weekdays(Week.24.2013, "http://s19.postimg.org/futj6u2bj/EVcar_1.png", "Week.24.Days")
 
+#---------------------------------------------------------------------------------------------------------------------------  
+# Create KML vector layer (from CSV-file or object), with weekday as colors, kWh_total in height and kWh_per_min in size.
+#---------------------------------------------------------------------------------------------------------------------------
+# Don't use this function. It the high efficiency (big circle), is often low amount of total kWh. 
+# High circles in the bottom of the pile cloud the visual.  
+# Also, many sessions have same number of kWh charged, so are double on the same hight. Is messy. 
+
+# CS_InvWeekdays <- function (CSV_obj, shape, name){
+#   obj.sp <- CSV_obj
+#   obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
+#   obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
+#   coordinates(obj.sp) <- ~ Longitude + Latitude
+#   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
+#   weekpal <- c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B")
+#   shape <- shape
+#   name <- paste(name, "kml", sep = ".")
+#   kml_open(name)
+#   kml_legend.bar(obj.sp$Weekday,legend.pal=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), legend.file = "Weekdays.png")
+#   kml_screen(image.file = "Weekdays.png", position = "ML", sname = "Weekdays")
+#   kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
+#                           extrude=TRUE, z.scale=10, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
+#                           TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_total*100, colour=Weekday, colour_scale=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), shape=shape, 
+#                           labels="", LabelScale=0.5, altitudeMode="relativeToGround", size=kWh_per_min, balloon = TRUE, kmz=TRUE, legend=TRUE)
+#   kml_close(name)
+#   kml_compress(name)
+#   kml_View(name)
+# }
+# 
+CS_InvWeekdays(Week.02.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.02.DaysInv")
+CS_InvWeekdays(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.24.DaysInv")
+
+CS_InvWeekdays <- function (CSV_obj, shape, name){
+  obj.sp <- CSV_obj
+  obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
+  obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
+  coordinates(obj.sp) <- ~ Longitude + Latitude
+  proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
+  weekpal <- c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B")
+  shape <- shape
+  name <- paste(name, "kml", sep = ".")
+  kml_open(name)
+  kml_legend.bar(obj.sp$Weekday,legend.pal=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), legend.file = "Weekdays.png")
+  kml_screen(image.file = "http://s19.postimg.org/czgfzyybn/Weekday.png", position = "ML", sname = "Weekdays")
+  kml_layer.SpatialPoints(obj.sp[c("kWh_per_min", "ConnectionTime", "kWh_total", "Weekday", "Begin_CS", "End_CS", "Address", "Provider")], subfolder.name="Output", 
+                          extrude=TRUE, z.scale=0, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_total*100, colour=Weekday, colour_scale=c("#FF7F24", "#FFD700", "#228B22", "#00BFFF", "#6A5ACD", "#EE82EE", "#EE3B3B"), shape=shape, 
+                          labels="", LabelScale=0, altitudeMode="relativeToGround", size=kWh_per_min, balloon = TRUE, kmz=TRUE, legend=TRUE, points_names=obj.sp$Address)
+  kml_close(name)
+  kml_compress(name)
+  kml_View(name)
+}
+
+CS_InvWeekdays(Week.02.2013, "http://s19.postimg.org/futj6u2bj/EVcar_1.png", "Week.02.Online")
+CS_InvWeekdays(Week.24.2013, "M:/My Documents/ESDA_ThesisTool/icons/EVcar(1).png", "Week.24.Online")
 #-------------------------------------------------------------------------------------------  
 # Create KML vector layer of charge point locations in 2015
 #-------------------------------------------------------------------------------------------
@@ -140,14 +191,14 @@ kmlStations2015 <- function (csv.name, shape, name){
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj$Provider, legend.pal= c("#FF1493", "#FFFF00"), legend.file = "Providers.png") 
-  kml_screen(image.file = "Providers.png", position = "MR", sname = "Providers")
-  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, kmz=TRUE, legend=TRUE)
+  kml_screen(image.file = "http://s19.postimg.org/5nazufg3j/Providers.png", position = "MR", sname = "Providers")
+  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =0, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names=obj$Address, balloon=TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
   kml_compress(name)
   # kml_View(kml.name)
 }
 
-kmlStations2015("ChargeStations.csv", "M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "Stations2015")
+kmlStations2015("ChargeStations.csv", "http://s19.postimg.org/gydnismyn/Station1.png", "Stations2015")
 
 #------------------------------------------------------------------------------------------- 
 # Create KML vector layer of charge point locations in 2013 
@@ -189,14 +240,14 @@ kmlStations2013 <- function(obj, shape, name){
   name <- paste(name, "kml", sep = ".")
   kml_open(name)
   kml_legend.bar(obj$Provider, legend.pal= c("#FF1493", "#FFFF00"), legend.file = "Providers.png") 
-  kml_screen(image.file = "Providers.png", position = "MR", sname = "Providers")
-  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =.5, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, kmz=TRUE, legend=TRUE)
+  kml_screen(image.file = "http://s19.postimg.org/5nazufg3j/Providers.png", position = "MR", sname = "Providers")
+  kml_layer(obj[c("Provider","Address")], shape = shape, LabelScale =0, colour=Provider, colour_scale=c("#FF1493", "#FFFF00"), points_names="", balloon=TRUE, kmz=TRUE, legend=TRUE, points_names=obj.sp$Address)
   kml_close(name)
   kml_compress(name)
   # kml_View(name)
 } 
 
-kmlStations2013(Stations2013,"M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "Stations2013")
+kmlStations2013(Stations2013,"http://s19.postimg.org/gydnismyn/Station1.png", "Stations2013")
 
 #-------------------------------------------------------------------------------------------  
 # Create STIDF (space-time irregular data frame) object from CSV-file
@@ -217,3 +268,30 @@ ST_DF <- function (obj){
 
 # You can now use plotKML or KML function to plot STIDF object
 # plotKML(ST_AdamJanuary2013)
+
+#-------------------------------------------------------------------------------------------  
+# Function for the visualisation of hour totals:
+#-------------------------------------------------------------------------------------------
+
+CS_hourTotals <- function (CSV_obj, shape, name){
+  obj.sp <- CSV_obj
+  obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
+  obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
+  coordinates(obj.sp) <- ~ Longitude + Latitude
+  proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
+  weekpal <- brewer.pal(9, "RdYlGn")
+  shape <- shape
+  name <- paste(name, "kml", sep = ".")
+  kml_open(name)
+  kml_legend.bar(obj.sp$hourTotal,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "hourTotal.png")
+  kml_screen(image.file = "hourTotal.png", position = "LM", sname = "hourTotal")
+  kml_layer.SpatialPoints(obj.sp[c("hourTotal", "MinutesCharged", "kWh_per_min", "Weekday", "beginHour", "endHour", "Address", "Provider")], subfolder.name="Output", 
+                          extrude=TRUE, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), colour=hourTotal, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
+                          altitudeMode="clampToGround", size=hourTotal, balloon = TRUE, kmz=TRUE, legend=TRUE)
+  kml_close(name)
+  kml_compress(name)
+  kml_View(name)
+}
+
+# CS_hourTotals(AdamAgg, "M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "hourTotals.kml")
