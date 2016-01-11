@@ -3,7 +3,25 @@
 # for the number of minutes charged, 
 # within that hour of that day
 # at that charge point.
-getwd()
+
+getwd()# Set directory
+mainDir <- "M:/My Documents/ESDA_ThesisTool/"
+outputDir <- "Output"
+dir.create(file.path(mainDir, outputDir), showWarnings = FALSE)
+setwd(file.path(mainDir))
+list.files()
+
+# Download and open required packages
+if (!require(plotKML)) install.packages('plotKML')
+if (!require(spacetime)) install.packages('spacetime')
+if (!require(plyr)) install.packages('plyr')
+if (!require(rgdal)) install.packages('rgdal')
+if (!require(sp)) install.packages('sp')
+if (!require(RColorBrewer)) install.packages('RColorBrewer')
+if (!require(plyr)) install.packages('plyr')
+if (!require(RCurl)) install.packages('RCurl')
+if (!require(chron)) install.packages('chron')
+if (!require(lubridate)) install.packages('lubridate')
 #-------------------------------------------------------------------------------------------  
 # pre-processing (Essent test) --> Later on, add to preProcessing script
 #-------------------------------------------------------------------------------------------
@@ -78,37 +96,32 @@ int_diff(EssentRaw02$sessionInterval, EssentRaw02$hourInterval)
 # try %in% 
 # http://www.r-statistics.com/2012/03/do-more-with-dates-and-times-in-r-with-lubridate-1-1-0/
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/difftime.html
+
 #-------------------------------------------------------------------------------------------  
-# pre-processing (Essent test) --> Later on, add to preProcessing script
+# Function for the visualisation of hour totals:
 #-------------------------------------------------------------------------------------------
-# In SPSS, magic (maak syntax)
 
-getwd()
-GeladenPerUur <- read.csv("GeladenPerUur.csv", header=TRUE, sep = ",")
-str(GeladenPerUur)
-
-CS_Bubbles <- function (CSV_obj, shape, file.name){
+CS_hourTotals <- function (CSV_obj, shape, name){
   obj.sp <- CSV_obj
-  #names(obj.sp)[names(obj.sp)=="ï..Latitude"] <- "Latitude"
-  obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS_first_1), format="%Y-%m-%d %H:%M:%S")
-  obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS_last), format="%Y-%m-%d %H:%M:%S")
+  obj.sp$Begin_CS <- as.POSIXct(paste(obj.sp$Begin_CS), format="%Y-%m-%d %H:%M:%S")
+  obj.sp$End_CS <- as.POSIXct(paste(obj.sp$End_CS), format="%Y-%m-%d %H:%M:%S")
   coordinates(obj.sp) <- ~ Longitude + Latitude
   proj4string(obj.sp) <- CRS("+proj=longlat +datum=WGS84")
-  color.pal <- c("#882E72","#1965B0","#4EB265","#F7EE55","#F1932D","#E8601C","#DC050C")
-  shape <- "https://www.dropbox.com/s/8zlr5z21xbuiqws/car%283%29.png?dl=0"
-  name <- paste(file.name, "kml", sep = ".")
+  weekpal <- brewer.pal(9, "RdYlGn")
+  shape <- shape
+  name <- paste(name, "kml", sep = ".")
   kml_open(name)
-  kml_legend.bar(obj.sp$kWh_per_min_sum,legend.pal=rainbow(7, s=1), legend.file = "kWh_per_uur.png")
-  kml_screen(image.file = "kWh_per_uur.png", position = "UL", sname = "kWh per uur")
-  kml_layer.SpatialPoints(obj.sp[c("kWh_per_min_sum", "timeMin_sum", "Provider")], subfolder.name="Output", 
-                          extrude=TRUE, TimeSpan.begin=format(obj.sp$Begin_CS_first_1, "%Y-%m-%dT%H:%M:%SZ"), 
-                          TimeSpan.end=format(obj.sp$End_CS_last, "%Y-%m-%dT%H:%M:%SZ"), altitude=kWh_per_min*10000, colour=kWh_per_min_sum, colour_scale=rainbow(7, s=1), shape=shape, 
-                          labels="", LabelScale=0.5, altitudeMode="relativeToGround", balloon = TRUE, kmz=TRUE, legend=TRUE)
+  kml_legend.bar(obj.sp$hourTotal,legend.pal=brewer.pal(9, "RdYlGn"), legend.file = "hourTotal.png")
+  kml_screen(image.file = "hourTotal.png", position = "LM", sname = "hourTotal")
+  kml_layer.SpatialPoints(obj.sp[c("hourTotal", "MinutesCharged", "kWh_per_min", "Weekday", "beginHour", "endHour", "Address", "Provider")], subfolder.name="Output", 
+                          extrude=TRUE, TimeSpan.begin=format(obj.sp$Begin_CS, "%Y-%m-%dT%H:%M:%SZ"), 
+                          TimeSpan.end=format(obj.sp$End_CS, "%Y-%m-%dT%H:%M:%SZ"), colour=hourTotal, colour_scale=brewer.pal(9, "RdYlGn"), shape=shape, 
+                          altitudeMode="clampToGround", size=hourTotal, balloon = TRUE, kmz=TRUE, legend=TRUE)
   kml_close(name)
+  kml_compress(name)
   kml_View(name)
 }
 
-kml_GeladenPerUur <- CS_Bubbles(GeladenPerUur, "https://www.dropbox.com/s/8zlr5z21xbuiqws/car%283%29.png?dl=0", "GeladenPerUur_Test")
-
+# CS_hourTotals(AdamAgg, "M:/My Documents/ESDA_ThesisTool/icons/Station1.png", "hourTotals.kml")
 
 

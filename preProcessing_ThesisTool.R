@@ -10,11 +10,12 @@ mainDir <- "M:/My Documents/ESDA_ThesisTool/"
 dataDir <- "Datasets"
 outputDir <- "Output"
 dir.create(file.path(mainDir,dataDir), showWarnings = FALSE)
-setwd(file.path(mainDir, dataDir))
 dir.create(file.path(mainDir, outputDir), showWarnings = FALSE)
+setwd(file.path(mainDir))
+
+# Set symstem language/time/location.
 Sys.setlocale("LC_ALL","English")
 
-getwd()
 # Download and open required packages
 if (!require(plyr)) install.packages('plyr')
 if (!require(RCurl)) install.packages('RCurl')
@@ -35,11 +36,11 @@ get.stations <- function(webaddress, file.name){
   # Remove double entries based on unique values in column "CPExternalID" 
   Stations <- Stations[ !duplicated(Stations["CPExternalID"]),]
   # Write to csv 
-  write.csv(Stations, file= paste(file.name, "csv", sep = "."))
+  write.csv(Stations, file= paste(file.name, "csv", sep = "."), subfolder.name="Datasets")
   return (Stations)
 } 
 
-Stations <- get.stations("https://api.essent.nl/generic/downloadChargingStations?latitude_low=52.30567123031878&longtitude_low=4.756801078125022&latitude_high=52.43772606594848&longtitude_high=5.086390921875022&format=CSV", "ChargeStations")
+Stations2015 <- get.stations("https://api.essent.nl/generic/downloadChargingStations?latitude_low=52.30567123031878&longtitude_low=4.756801078125022&latitude_high=52.43772606594848&longtitude_high=5.086390921875022&format=CSV", "ChargeStations")
 #-------------------------------------------------------------------------------------------  
 # pre-process Nuon charge session dataset
 #-------------------------------------------------------------------------------------------
@@ -147,7 +148,7 @@ prep_NUON <- function (csv.file, obj.name){
   NuonClean <- NuonRaw.Sessions[keep]
   
   # Write to csv and return object
-  write.csv(NuonClean, file= paste(obj.name, "csv", sep = "."))
+  write.csv(NuonClean, file= paste(obj.name, "csv", sep = "."), subfolder.name="Datasets")
   return(NuonClean)
 } 
 
@@ -260,7 +261,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentClean <- EssentRaw.Sessions[keep]
   
   # Write to csv and return object
-  write.csv(EssentClean, file = paste(obj.name, "csv", sep =".")) 
+  write.csv(EssentClean, file = paste(obj.name, "csv", sep ="."), subfolder.name="Datasets") 
   return (EssentClean)
 }
 
@@ -272,9 +273,9 @@ Essent_June2013 <- prep_ESSENT("exp_201306-62014.csv", "Essent_June2013")
 # Merge providers per month
 #-------------------------------------------------------------------------------------------
 AdamJanuary2013 <- rbind(Nuon_January2013, Essent_January2013)
-write.csv(AdamJanuary2013, file = "AdamJanuary2013.csv")
+write.csv(AdamJanuary2013, file = "AdamJanuary2013.csv", subfolder.name="Datasets")
 AdamJune2013 <- rbind(Nuon_June2013, Essent_June2013)
-write.csv(AdamJune2013, file = "AdamJune2013.csv")
+write.csv(AdamJune2013, file = "AdamJune2013.csv", subfolder.name="Datasets")
 
 #-------------------------------------------------------------------------------------------  
 # Subset data per week
