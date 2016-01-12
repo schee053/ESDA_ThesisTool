@@ -1,8 +1,8 @@
 # Purpose        : Preprocess Charge point and Charge session data for use for ESDA tool;
 # Maintainer     : Daniel Scheerooren (daniel.scheerooren@wur.nl);
-# Status         : Almost completed
-# Last update    : 07-01-2015
-# Note           : 
+# Status         : Finished
+# Last update    : 12-01-2015
+# Note           : Mannualy put charge data into workspace directory and save as CSV-file.
 
 
 # Set directory
@@ -11,7 +11,7 @@ dataDir <- "Datasets"
 outputDir <- "Output"
 dir.create(file.path(mainDir,dataDir), showWarnings = FALSE)
 dir.create(file.path(mainDir, outputDir), showWarnings = FALSE)
-setwd(file.path(mainDir))
+setwd(file.path(mainDir, dataDir))
 
 # Set symstem language/time/location.
 Sys.setlocale("LC_ALL","English")
@@ -126,6 +126,7 @@ prep_NUON <- function (csv.file, obj.name){
   # Calculate kWh per minute
   NuonRaw$kWh_per_min <- ((NuonRaw$kWh_total/NuonRaw$timeSec)*60) 
   NuonRaw$kWh_per_min <- round(NuonRaw$kWh_per_min,digits=3)
+  NuonRaw$kWh_total <- round(NuonRaw$kWh_total,digits=2)
   
   # Join Charge data with xy-coordinates
   NuonRaw$Address <- paste(NuonRaw$Street, NuonRaw$HouseNumber, NuonRaw$PostalCode, sep=" ")
@@ -148,7 +149,7 @@ prep_NUON <- function (csv.file, obj.name){
   NuonClean <- NuonRaw.Sessions[keep]
   
   # Write to csv and return object
-  write.csv(NuonClean, file= paste(obj.name, "csv", sep = "."), subfolder.name="Datasets")
+  write.csv(NuonClean, file= paste(obj.name, "csv", sep = "."))
   return(NuonClean)
 } 
 
@@ -239,6 +240,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   # Calculate kWh per minute
   EssentRaw$kWh_per_min <- ((EssentRaw$kWh_total/EssentRaw$timeSec)*60) 
   EssentRaw$kWh_per_min <- round(EssentRaw$kWh_per_min,digits=3)
+  EssentRaw$kWh_total <- round(EssentRaw$kWh_total,digits=2)
   
   # Join Charge data with xy-coordinates
   EssentRaw$Address <- paste(EssentRaw$Street, EssentRaw$HouseNumber, EssentRaw$PostalCode, sep=" ")
@@ -261,7 +263,7 @@ prep_ESSENT <- function(csv.file, obj.name){
   EssentClean <- EssentRaw.Sessions[keep]
   
   # Write to csv and return object
-  write.csv(EssentClean, file = paste(obj.name, "csv", sep ="."), subfolder.name="Datasets") 
+  write.csv(EssentClean, file = paste(obj.name, "csv", sep =".")) 
   return (EssentClean)
 }
 
